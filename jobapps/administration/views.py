@@ -92,7 +92,7 @@ def administrator_logout(request):
 
 @administrator_required
 def job_list(request):
-    jobs = JobPosting.objects.all().order_by('-created_at')
+    jobs = JobPosting.objects.all().order_by('-id')
 
     return render(
         request,
