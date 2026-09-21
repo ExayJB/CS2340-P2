@@ -46,6 +46,8 @@
                     </div>
                 </div>
                 {% endfor %}
+                <button type="button" class="btn btn-secondary btn-sm" data-add="experiences">Add another job</button>
+                <template id="tpl-experiences">{{ template_data.exp_formset.empty_form }}</template>
             </div>
 
             <div class="card-body">
@@ -67,10 +69,21 @@
                     </div>
                 </div>
                 {% endfor %}
+                <button type="button" class="btn btn-secondary btn-sm" data-add="education">Add another degree</button>
+                <template id="tpl-education">{{ template_data.edu_formset.empty_form }}</template>
             </div>
 
 
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
+        <script>
+            document.querySelectorAll('[data-add]').forEach(btn => btn.addEventListener('click', () => {
+                const prefix = btn.dataset.add;
+                const total = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+                const html = document.querySelector(`#tpl-${prefix}`).innerHTML.replaceAll('__prefix__', total.value);
+                btn.insertAdjacentHTML(`beforebegin`, `<div class="mb-3">${html}</div>`);
+                total.value++;
+            }))
+        </script>
     </form>
 </div>
