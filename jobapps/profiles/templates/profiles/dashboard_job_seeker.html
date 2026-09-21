@@ -1,0 +1,75 @@
+<div class="container mt-5">
+    <h2>Welcome, {{ request.user.username }}</h2>
+    <p class="text-muted">Account Type: Job Seeker</p>
+
+    <!-- Display Message Alerts -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Profile Edit Form -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">Profile Summary</h4>
+                <div class="mb-3">
+                    <label>Headline</label>
+                    {{ template_data.form.headline }}
+                </div>
+                <div class="mb-3">
+                    <label>Skills (Comma-separated)</label>
+                    {{ template_data.form.skills }}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <h4 class="card-title">Work Experience</h4>
+                {{ template_data.exp_formset.management_form }}
+                {% for exp_form in template_data.exp_formset %}
+                <div class="mb-3">
+                    {{ exp_form.id }}
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>Company</label>{{ exp_form.company }}</div>
+                        <div class="col-md-6"><label>Job Title</label>{{ exp_form.title }}</div>
+                        <div class="col-md-6"><label>Start Date</label>{{ exp_form.start_date }}</div>
+                        <div class="col-md-6"><label>End Date</label>{{ exp_form.end_date }}</div>
+                        <div class="col-md-6"><label>Description</label>{{ exp_form.description }}</div>
+                        {% if exp_form.instance.pk %}
+                        <div class="col-12 mt-2 text-danger">
+                            <label>{{ exp_form.DELETE }} Remove this job row</label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="card-body">
+                <h4 class="card-title">Education</h4>
+                {{ template_data.edu_formset.management_form }}
+                {% for edu_form in template_data.edu_formset %}
+                <div class="mb-3">
+                    {{ edu_form.id }}
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>Institution</label>{{ edu_form.institution }}</div>
+                        <div class="col-md-6"><label>Degree</label>{{ edu_form.degree }}</div>
+                        <div class="col-md-6"><label>Field of Study</label>{{ edu_form.field_of_study }}</div>
+                        <div class="col-md-6"><label>Graduation Date</label>{{ edu_form.end_date }}</div>
+                        {% if edu_form.instance.pk %}
+                        <div class="col-12 mt-2 text-danger">
+                            <label>{{ edu_form.DELETE }} Remove this degree row</label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
