@@ -3,7 +3,7 @@ from django.contrib.auth import login as auth_login, authenticate, logout as aut
 from .forms import CustomUserCreationForm, CustomErrorList
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User #J10:31,9/21: we have a custom account.user, why import django's user? 
 from profiles.models import JobSeekerProfile, RecruiterProfile
 
 @login_required
@@ -23,7 +23,10 @@ def login(request):
             return render(request, 'accounts/login.html', {'template_data': template_data})
         else:
             auth_login(request, user)
+            if user.base_role == 'ADMIN':
+                return redirect('administration:dashboard')
             return redirect('profiles:dashboard')
+        
 
 def signup(request):
     template_data = {}
@@ -36,6 +39,10 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             chosen_role = form.cleaned_data.get('role')
+
+            #J10:32,9/21: forgot to save into base role
+            user.base_role = chosen_role
+            user.save()
 
             if chosen_role == 'SEEKER':
                 JobSeekerProfile.objects.create(user=user)
