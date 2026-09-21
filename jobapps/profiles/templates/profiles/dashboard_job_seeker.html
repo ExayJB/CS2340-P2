@@ -16,11 +16,12 @@
             <div class="card-body">
                 <h4 class="card-title">Profile Summary</h4>
                 <div class="mb-3">
-                    <label>Headline</label>
+                    <label>Headline: </label>
                     {{ template_data.form.headline }}
                 </div>
                 <div class="mb-3">
-                    <label>Skills (Comma-separated)</label>
+                    <label>Skills (Comma-separated):</label>
+                    <br>
                     {{ template_data.form.skills }}
                 </div>
             </div>
@@ -32,11 +33,11 @@
                 <div class="mb-3">
                     {{ exp_form.id }}
                     <div class="row g-3">
-                        <div class="col-md-6"><label>Company</label>{{ exp_form.company }}</div>
-                        <div class="col-md-6"><label>Job Title</label>{{ exp_form.title }}</div>
-                        <div class="col-md-6"><label>Start Date</label>{{ exp_form.start_date }}</div>
-                        <div class="col-md-6"><label>End Date</label>{{ exp_form.end_date }}</div>
-                        <div class="col-md-6"><label>Description</label>{{ exp_form.description }}</div>
+                        <div class="col-md-6"><label>Company: </label>{{ exp_form.company }}</div>
+                        <div class="col-md-6"><label>Job Title: </label>{{ exp_form.title }}</div>
+                        <div class="col-md-6"><label>Start Date: </label>{{ exp_form.start_date }}</div>
+                        <div class="col-md-6"><label>End Date: </label>{{ exp_form.end_date }}</div>
+                        <div class="col-md-6"><label>Description: </label><br>{{ exp_form.description }}</div>
                         {% if exp_form.instance.pk %}
                         <div class="col-12 mt-2 text-danger">
                             <label>{{ exp_form.DELETE }} Remove this job row</label>
@@ -54,10 +55,10 @@
                 <div class="mb-3">
                     {{ edu_form.id }}
                     <div class="row g-3">
-                        <div class="col-md-6"><label>Institution</label>{{ edu_form.institution }}</div>
-                        <div class="col-md-6"><label>Degree</label>{{ edu_form.degree }}</div>
-                        <div class="col-md-6"><label>Field of Study</label>{{ edu_form.field_of_study }}</div>
-                        <div class="col-md-6"><label>Graduation Date</label>{{ edu_form.end_date }}</div>
+                        <div class="col-md-6"><label>Institution: </label>{{ edu_form.institution }}</div>
+                        <div class="col-md-6"><label>Degree: </label>{{ edu_form.degree }}</div>
+                        <div class="col-md-6"><label>Field of Study: </label>{{ edu_form.field_of_study }}</div>
+                        <div class="col-md-6"><label>Graduation Date: </label>{{ edu_form.end_date }}</div>
                         {% if edu_form.instance.pk %}
                         <div class="col-12 mt-2 text-danger">
                             <label>{{ edu_form.DELETE }} Remove this degree row</label>

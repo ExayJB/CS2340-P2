@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 class JobSeekerProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='job_seeker_profile')
     headline = models.CharField(max_length=255)
     skills = models.TextField()
 
@@ -41,7 +41,7 @@ class ProfileLink(models.Model):
 
 
 class RecruiterProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recruiter_profile')
 
     def __str__(self):
         return f"{self.user.username}'s Recruiter Profile"
