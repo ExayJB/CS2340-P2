@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administrator Dashboard</title>
+</head>
+<body>
+    <h1>Administrator Dashboard</h1>
+
+    <p>Welcome, {{ request.user.username }}.</p>
+
+    <a href="{% url 'administration:user_list' %}">
+        Manage Users
+    </a>
+    <a href="{% url 'administration:logout' %}">
+    Logout
+    </a>
+</body>
+</html>
