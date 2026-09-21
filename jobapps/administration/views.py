@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import UserManagementForm
 from .decorators import administrator_required
+from jobs.models import JobPosting
 
 User = get_user_model()
 
@@ -88,3 +89,52 @@ def user_detail(request, user_id):
 def administrator_logout(request):
     logout(request)
     return redirect('administration:login')
+
+@administrator_required
+def job_list(request):
+    jobs = JobPosting.objects.all().order_by('-id')
+
+    return render(
+        request,
+        'administration/job_list.html',
+        {'jobs': jobs}
+    )
+
+
+@administrator_required
+def job_detail(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+
+    return render(
+        request,
+        'administration/job_detail.html',
+        {'job': job}
+    )
+
+
+@administrator_required
+def remove_job(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+
+    if request.method == 'POST':
+        job.is_active = False
+        job.save()
+
+    return redirect(
+        'administration:job_detail',
+        job_id=job.id
+    )
+
+
+@administrator_required
+def restore_job(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+
+    if request.method == 'POST':
+        job.is_active = True
+        job.save()
+
+    return redirect(
+        'administration:job_detail',
+        job_id=job.id
+    )

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Job Post</title>
+</head>
+<body>
+
+    <h1>Manage Job Post</h1>
+
+    <p><strong>Title:</strong> {{ job.title }}</p>
+    <p><strong>Recruiter:</strong> {{ job.recruiter.username }}</p>
+    <p><strong>Location:</strong> {{ job.location }}</p>
+    <p><strong>Description:</strong> {{ job.description }}</p>
+
+    <p>
+        <strong>Status:</strong>
+
+        {% if job.is_active %}
+            Active
+        {% else %}
+            Removed
+        {% endif %}
+    </p>
+
+    {% if job.is_active %}
+
+        <form
+            method="post"
+            action="{% url 'administration:remove_job' job.id %}"
+            onsubmit="return confirm('Are you sure you want to remove this job post?');"
+        >
+            {% csrf_token %}
+
+            <button type="submit">
+                Remove Job Post
+            </button>
+        </form>
+
+    {% else %}
+
+        <form
+            method="post"
+            action="{% url 'administration:restore_job' job.id %}"
+        >
+            {% csrf_token %}
+
+            <button type="submit">
+                Restore Job Post
+            </button>
+        </form>
+
+    {% endif %}
+
+    <br>
+
+    <a href="{% url 'administration:job_list' %}">
+        Back to Job Posts
+    </a>
+
+</body>
+</html>
