@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ template_data.job.title }}</title>
+</head>
+
+<body>
+    <div class="p-3">
+        <div class="container">
+
+            <div class="row mt-3">
+                <div class="col-md-8 mx-auto">
+
+                    <h2>{{ template_data.job.title }}</h2>
+                    <hr />
+
+                    <p>
+                        <b>Company:</b>
+                        {{ template_data.job.company }}
+                    </p>
+
+                    <p>
+                        <b>Location:</b>
+                        {{ template_data.job.location }}
+                    </p>
+
+                    <p>
+                        <b>Description:</b>
+                        {{ template_data.job.description }}
+                    </p>
+
+                    <form method="post"
+                          action="{% url 'cart.add' id=template_data.job.id %}">
+
+                        {% csrf_token %}
+
+                        <button type="submit">
+                            Add to Cart
+                        </button>
+
+                    </form>
+
+                    <br />
+
+                    <a href="{% url 'jobs.index' %}">
+                        Back to Jobs
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
