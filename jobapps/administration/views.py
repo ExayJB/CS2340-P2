@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
+import csv
 
+from django.http import HttpResponse
 from .forms import UserManagementForm
 from .decorators import administrator_required
 from jobs.models import JobPosting
@@ -54,6 +56,45 @@ def user_list(request):
         'administration/user_list.html',
         {'users': users}
     )
+
+@administrator_required
+def export_users_csv(request):
+    users = User.objects.all().order_by('username')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = (
+        'attachment; filename="user_usage_report.csv"'
+    )
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'User ID',
+        'Username',
+        'Email',
+        'Role',
+        'Active',
+        'Date Joined',
+        'Last Login',
+    ])
+
+    for user in users:
+        last_login = ''
+
+        if user.last_login:
+            last_login = user.last_login.isoformat()
+
+        writer.writerow([
+            user.id,
+            user.username,
+            user.email,
+            user.get_base_role_display(),
+            user.is_active,
+            user.date_joined.isoformat(),
+            last_login,
+        ])
+
+    return response
 
 @administrator_required
 def user_detail(request, user_id):
