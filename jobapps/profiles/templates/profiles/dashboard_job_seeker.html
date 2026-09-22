@@ -16,11 +16,36 @@
             <div class="card-body">
                 <h4 class="card-title">Profile Summary</h4>
                 <div class="mb-3">
-                    <label>Headline</label>
+                    <label>Given Name: </label>
+                    {{ template_data.form.given_name }}
+                </div>
+                <div class="mb-3">
+                    <label>Middle Name: </label>
+                    {{ template_data.form.given_name }}
+                </div>
+                <div class="mb-3">
+                    <label>Last Name: </label>
+                    {{ template_data.form.last_name }}
+                </div>
+                <div class="mb-3">
+                    <label>Personal Email: </label>
+                    {{ template_data.form.personal_email }}
+                </div>
+                <div class="mb-3">
+                    <label>Phone Number: </label>
+                    {{ template_data.form.phone_number }}
+                </div>
+                <div class="mb-3">
+                    <label>Personal Address: </label>
+                    {{ template_data.form.personal_address }}
+                </div>
+                <div class="mb-3">
+                    <label>Headline: </label>
                     {{ template_data.form.headline }}
                 </div>
                 <div class="mb-3">
-                    <label>Skills (Comma-separated)</label>
+                    <label>Skills (Comma-separated):</label>
+                    <br>
                     {{ template_data.form.skills }}
                 </div>
             </div>
@@ -32,11 +57,11 @@
                 <div class="mb-3">
                     {{ exp_form.id }}
                     <div class="row g-3">
-                        <div class="col-md-6"><label>Company</label>{{ exp_form.company }}</div>
-                        <div class="col-md-6"><label>Job Title</label>{{ exp_form.title }}</div>
-                        <div class="col-md-6"><label>Start Date</label>{{ exp_form.start_date }}</div>
-                        <div class="col-md-6"><label>End Date</label>{{ exp_form.end_date }}</div>
-                        <div class="col-md-6"><label>Description</label>{{ exp_form.description }}</div>
+                        <div class="col-md-6"><label>Company: </label>{{ exp_form.company }}</div>
+                        <div class="col-md-6"><label>Job Title: </label>{{ exp_form.title }}</div>
+                        <div class="col-md-6"><label>Start Date: </label>{{ exp_form.start_date }}</div>
+                        <div class="col-md-6"><label>End Date: </label>{{ exp_form.end_date }}</div>
+                        <div class="col-md-6"><label>Description: </label><br>{{ exp_form.description }}</div>
                         {% if exp_form.instance.pk %}
                         <div class="col-12 mt-2 text-danger">
                             <label>{{ exp_form.DELETE }} Remove this job row</label>
@@ -45,6 +70,8 @@
                     </div>
                 </div>
                 {% endfor %}
+                <button type="button" class="btn btn-secondary btn-sm" data-add="experiences">Add another job</button>
+                <template id="tpl-experiences">{{ template_data.exp_formset.empty_form }}</template>
             </div>
 
             <div class="card-body">
@@ -54,10 +81,10 @@
                 <div class="mb-3">
                     {{ edu_form.id }}
                     <div class="row g-3">
-                        <div class="col-md-6"><label>Institution</label>{{ edu_form.institution }}</div>
-                        <div class="col-md-6"><label>Degree</label>{{ edu_form.degree }}</div>
-                        <div class="col-md-6"><label>Field of Study</label>{{ edu_form.field_of_study }}</div>
-                        <div class="col-md-6"><label>Graduation Date</label>{{ edu_form.end_date }}</div>
+                        <div class="col-md-6"><label>Institution: </label>{{ edu_form.institution }}</div>
+                        <div class="col-md-6"><label>Degree: </label>{{ edu_form.degree }}</div>
+                        <div class="col-md-6"><label>Field of Study: </label>{{ edu_form.field_of_study }}</div>
+                        <div class="col-md-6"><label>Graduation Date: </label>{{ edu_form.end_date }}</div>
                         {% if edu_form.instance.pk %}
                         <div class="col-12 mt-2 text-danger">
                             <label>{{ edu_form.DELETE }} Remove this degree row</label>
@@ -66,10 +93,21 @@
                     </div>
                 </div>
                 {% endfor %}
+                <button type="button" class="btn btn-secondary btn-sm" data-add="education">Add another degree</button>
+                <template id="tpl-education">{{ template_data.edu_formset.empty_form }}</template>
             </div>
 
 
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
+        <script>
+            document.querySelectorAll('[data-add]').forEach(btn => btn.addEventListener('click', () => {
+                const prefix = btn.dataset.add;
+                const total = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+                const html = document.querySelector(`#tpl-${prefix}`).innerHTML.replaceAll('__prefix__', total.value);
+                btn.insertAdjacentHTML(`beforebegin`, `<div class="mb-3">${html}</div>`);
+                total.value++;
+            }))
+        </script>
     </form>
 </div>
