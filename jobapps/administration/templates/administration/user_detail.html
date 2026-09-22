@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage User</title>
+</head>
+<body>
+    <h1>Manage User</h1>
+
+    <p><strong>Username:</strong> {{ managed_user.username }}</p>
+    <p><strong>Email:</strong> {{ managed_user.email }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Save Changes
+        </button>
+    </form>
+
+    <a href="{% url 'administration:user_list' %}">
+        Back to Users
+    </a>
+    <a href="{% url 'administration:logout' %}">
+    Logout
+    </a>
+</body>
+</html>
