@@ -5,7 +5,7 @@ from .models import JobSeekerProfile, WorkExperience, Education, RecruiterProfil
 class JobSeekerProfileForm(forms.ModelForm):
     class Meta:
         model = JobSeekerProfile
-        fields = ['headline', 'skills']
+        fields = ['given_name', 'middle_name', 'last_name', 'personal_email', 'phone_number', 'personal_address', 'headline', 'skills']
 
 class DateInput(forms.DateInput):
     input_type='date'
