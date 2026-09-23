@@ -40,6 +40,39 @@
 
                     </form>
 
+                    {% if user.is_authenticated %}
+
+                    <form method="POST"
+                        action="{% url 'applications:apply' id=template_data.job.id %}">
+
+                        {% csrf_token %}
+
+                        <p>
+                            <label for="note">
+                                <b>Personalized Note:</b>
+                            </label>
+                        </p>
+
+                        <textarea
+                            name="note"
+                            id="note"
+                            rows="5"
+                            placeholder="Tell the recruiter why you're interested in this position..."
+                            required></textarea>
+
+                        <br /><br />
+
+                        <button type="submit">
+                            Apply
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                    <p>Please log in to apply for this position.</p>
+
+                    {% endif %}
                     <br />
 
                     <a href="{% url 'jobs.index' %}">
