@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('jobs', '0002_jobposting_is_active_jobposting_recruiter'),
-        ('profiles', '0002_recruiterprofile'),
+        ('profiles', '0002_alter_jobseekerprofile_user_recruiterprofile'),
     ]
 
     operations = [
