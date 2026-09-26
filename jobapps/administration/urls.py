@@ -10,6 +10,7 @@ urlpatterns = [
 
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_id>/', views.user_detail, name='user_detail'),
+    path('reports/users.csv',views.export_users_csv,name='export_users_csv'),
 
     path('jobs/', views.job_list, name='job_list'),
     path('jobs/<int:job_id>/', views.job_detail, name='job_detail'),

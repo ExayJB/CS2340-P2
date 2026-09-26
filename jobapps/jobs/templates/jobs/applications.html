@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Applications</title>
+</head>
+
+<body>
+
+    <h2>My Applications</h2>
+
+    {% for application in template_data.applications %}
+
+        <div>
+            <h3>{{ application.job.title }}</h3>
+
+            <p>
+                <b>Company:</b>
+                {{ application.job.company }}
+            </p>
+
+            <p>
+                <b>Current Status:</b>
+                {{ application.get_status_display }}
+            </p>
+
+            <!-- Show the full application process -->
+            <p>
+                Applied
+                →
+                Review
+                →
+                Interview
+                →
+                Offer
+                →
+                Closed
+            </p>
+
+            <!-- Show which stage the application is currently in -->
+            {% if application.status == 'APPLIED' %}
+                <p><b>You are currently at: Applied</b></p>
+
+            {% elif application.status == 'REVIEW' %}
+                <p><b>You are currently at: Review</b></p>
+
+            {% elif application.status == 'INTERVIEW' %}
+                <p><b>You are currently at: Interview</b></p>
+
+            {% elif application.status == 'OFFER' %}
+                <p><b>You are currently at: Offer</b></p>
+
+            {% elif application.status == 'CLOSED' %}
+                <p><b>You are currently at: Closed</b></p>
+            {% endif %}
+
+            <hr />
+        </div>
+
+    {% empty %}
+
+        <p>You do not have any applications yet.</p>
+
+    {% endfor %}
+
+</body>
+</html>

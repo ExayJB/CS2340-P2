@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recommended Jobs</title>
+</head>
+
+<body>
+    <div class="p-3">
+        <div class="container">
+
+            <div class="row mt-3">
+                <div class="col-md-8 mx-auto">
+
+                    <h2>Recommended Jobs</h2>
+
+                    <p>
+                        These jobs are recommended based on the skills in your profile.
+                    </p>
+
+                    <hr />
+
+                    {% for recommendation in template_data.recommendations %}
+
+                        <h3>{{ recommendation.job.title }}</h3>
+
+                        <p>
+                            <b>Company:</b>
+                            {{ recommendation.job.company }}
+                        </p>
+
+                        <p>
+                            <b>Location:</b>
+                            {{ recommendation.job.location }}
+                        </p>
+
+                        <p>
+                            <b>Skill Match:</b>
+                            {{ recommendation.match_percentage }}%
+                        </p>
+
+                        <p>
+                            <b>Matching Skills:</b>
+
+                            {% for skill in recommendation.matching_skills %}
+                                {{ skill }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+
+                        <a href="{% url 'jobs.show' id=recommendation.job.id %}">
+                            View Job
+                        </a>
+
+                        <hr />
+
+                    {% empty %}
+
+                        <p>
+                            No jobs currently match the skills in your profile.
+                        </p>
+
+                    {% endfor %}
+
+                    <a href="{% url 'jobs.index' %}">
+                        Back to Jobs
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
