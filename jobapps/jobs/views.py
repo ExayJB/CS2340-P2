@@ -34,8 +34,16 @@ def show(request, id):
 
 @login_required
 def applications(request):
-    # only shows applications of the user thats logged in
-    user_applications = Application.objects.filter(user=request.user)
+    #find profile
+    profile = get_object_or_404(
+        JobSeekerProfile,
+        user=request.user
+    )
+
+    #only shows pplications of logged in user
+    user_applications = Application.objects.filter(
+        profile=profile
+    ).order_by('-date')
 
     template_data = {}
     template_data['title'] = 'My Applications'
