@@ -17,4 +17,4 @@ def apply(request, id):
             }
         )
     
-    return redirect('jobs:job_detail', id=id)
+    return redirect('/jobs/')
