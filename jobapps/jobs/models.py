@@ -15,6 +15,21 @@ class JobPosting(models.Model):
     title = models.CharField(max_length=255)
     company = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+
+
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True
+    )
+
     description = models.TextField()
     required_skills = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)

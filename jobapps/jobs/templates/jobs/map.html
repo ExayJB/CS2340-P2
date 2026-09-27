@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Jobs Near Me | JobApps
+{% endblock %}
+
+{% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+<style>
+    #job-map {
+        height: 560px;
+        width: 100%;
+        border-radius: 12px;
+    }
+</style>    
+{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Jobs near me</h1>
+
+    <p class="muted">
+        Select a marker to view the job posting.
+    </p>
+
+    <button class="btn btn-secondary" id="locate-me" type="button">
+        Use my location
+    </button>
+
+    <p class="muted" id="map-status" aria-live="polite"></p>
+</div>
+
+<div class="card">
+    <div id="job-map"></div>
+</div>
+
+{{ template_data.map_jobs|json_script:"job-map-data" }}
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+
+<script>
+    const jobs = JSON.parse(
+        document.getElementById("job-map-data").textContent
+    );
+
+    const map = L.map("job-map").setView([33.749, -84.388], 11);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">' +
+            'OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const status = document.getElementById("map-status");
+    const markers = [];
+
+    function makePopup(job) {
+        const popup = document.createElement("div");
+
+        const title = document.createElement("strong");
+        title.textContent = job.title;
+        popup.appendChild(title);
+
+        const details = document.createElement("p");
+        details.textContent = job.company + " · " + job.location;
+        popup.appendChild(details);
+
+        const link = document.createElement("a");
+        link.href = job.url;
+        link.textContent = "View job";
+        popup.appendChild(link);
+
+        return popup;
+    }
+
+    for (const job of jobs) {
+        const marker = L.marker([
+            job.latitude,
+            job.longitude
+        ]).addTo(map);
+
+        marker.bindPopup(makePopup(job));
+        markers.push(marker);
+    }
+
+    if (markers.length > 0) {
+        const bounds = L.featureGroup(markers).getBounds();
+        map.fitBounds(bounds.pad(0.15));
+        status.textContent = "Showing " + markers.length + " available jobs.";
+    } else {
+        status.textContent =
+            "No available jobs have coordinates yet.";
+    }
+
+    let myLocationMarker = null;
+
+    document.getElementById("locate-me").addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            status.textContent =
+                "Location is not available in this browser.";
+            return;
+        }
+
+        status.textContent = "Finding your location…";
+
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const location = [
+                    position.coords.latitude,
+                    position.coords.longitude
+                ];
+
+                if (myLocationMarker) {
+                    map.removeLayer(myLocationMarker);
+                }
+
+                myLocationMarker = L.circleMarker(location, {
+                    radius: 8,
+                    color: "#2563eb",
+                    fillColor: "#60a5fa",
+                    fillOpacity: 0.9
+                })
+                    .addTo(map)
+                    .bindPopup("You are here")
+                    .openPopup();
+
+                map.setView(location, 12);
+                status.textContent =
+                    "Your location is shown. Select a job marker to view its posting.";
+            },
+            () => {
+                status.textContent =
+                    "Could not get your location. You can still browse the job markers.";
+            }
+        );
+    });
+</script>
+{% endblock %}

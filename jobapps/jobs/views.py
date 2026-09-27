@@ -3,6 +3,7 @@ from .models import JobPosting
 from applications.models import Application
 from profiles.models import JobSeekerProfile
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 
 def index(request):
@@ -17,7 +18,35 @@ def index(request):
         'jobs/index.html',
         {'template_data': template_data}
     )
+def map_view(request):
+    jobs = JobPosting.objects.filter(
+        is_active=True,
+        latitude__isnull=False,
+        longitude__isnull=False
+    ).order_by('title')
 
+    map_jobs = []
+
+    for job in jobs:
+        map_jobs.append({
+            'title': job.title,
+            'company': job.company,
+            'location': job.location,
+            'latitude': float(job.latitude),
+            'longitude': float(job.longitude),
+            'url': reverse('jobs.show', kwargs={'id': job.id}),
+        })
+
+    template_data = {
+        'title': 'Jobs Near Me',
+        'map_jobs': map_jobs,
+    }
+
+    return render(
+        request,
+        'jobs/map.html',
+        {'template_data': template_data}
+    )
 
 def show(request, id):
     job = get_object_or_404(JobPosting, id=id)
