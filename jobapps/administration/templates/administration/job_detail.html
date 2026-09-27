@@ -1,61 +1,122 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Job Post</title>
-</head>
-<body>
+{% extends 'admin_base.html' %}
+
+{% block title %}
+Manage Job Post
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-heading">
 
     <h1>Manage Job Post</h1>
 
-    <p><strong>Title:</strong> {{ job.title }}</p>
-    <p><strong>Recruiter:</strong> {{ job.recruiter.username }}</p>
-    <p><strong>Location:</strong> {{ job.location }}</p>
-    <p><strong>Description:</strong> {{ job.description }}</p>
+</div>
 
-    <p>
-        <strong>Status:</strong>
+
+<div class="two-col">
+
+    <section class="card">
+
+        <p>
+            <strong>Title:</strong>
+            {{ job.title }}
+        </p>
+
+
+        <p>
+            <strong>Recruiter:</strong>
+            {{ job.recruiter.username }}
+        </p>
+
+
+        <p>
+            <strong>Location:</strong>
+            {{ job.location }}
+        </p>
+
+
+        <p>
+            <strong>Description:</strong>
+            {{ job.description }}
+        </p>
+
+
+        <p>
+
+            <strong>Status:</strong>
+
+            {% if job.is_active %}
+
+                Active
+
+            {% else %}
+
+                Removed
+
+            {% endif %}
+
+        </p>
+
+    </section>
+
+
+    <aside class="card">
 
         {% if job.is_active %}
-            Active
+
+            <form
+                method="post"
+                action="{% url 'administration:remove_job' job.id %}"
+                onsubmit="return confirm('Are you sure you want to remove this job post?');"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Remove Job Post
+                </button>
+
+            </form>
+
+
         {% else %}
-            Removed
+
+            <form
+                method="post"
+                action="{% url 'administration:restore_job' job.id %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Restore Job Post
+                </button>
+
+            </form>
+
         {% endif %}
-    </p>
 
-    {% if job.is_active %}
 
-        <form
-            method="post"
-            action="{% url 'administration:remove_job' job.id %}"
-            onsubmit="return confirm('Are you sure you want to remove this job post?');"
-        >
-            {% csrf_token %}
+        <div class="actions">
 
-            <button type="submit">
-                Remove Job Post
-            </button>
-        </form>
+            <a
+                class="btn btn-secondary"
+                href="{% url 'administration:job_list' %}"
+            >
+                Back to Job Posts
+            </a>
 
-    {% else %}
+        </div>
 
-        <form
-            method="post"
-            action="{% url 'administration:restore_job' job.id %}"
-        >
-            {% csrf_token %}
+    </aside>
 
-            <button type="submit">
-                Restore Job Post
-            </button>
-        </form>
+</div>
 
-    {% endif %}
-
-    <br>
-
-    <a href="{% url 'administration:job_list' %}">
-        Back to Job Posts
-    </a>
-
-</body>
-</html>
+{% endblock %}

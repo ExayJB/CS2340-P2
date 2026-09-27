@@ -1,28 +1,94 @@
-<h2>{{ template_data.fields.name }}</h2>
-<p>{{ template_data.fields.headline }}</p>
+{% extends 'base.html' %}
 
-{% if template_data.fields.personal_email %}
-<p>Email: {{ template_data.fields.personal_email }}</p>
-{% endif %}
+{% block title %}
+{{ template_data.fields.name }} | JobApps
+{% endblock %}
 
-{% if template_data.fields.phone_number %}
-<p>Phone: {{ template_data.fields.phone_number }}</p>
-{% endif %}
+{% block content %}
 
-{% if template_data.fields.location %}
+<div class="page-heading">
 
-<address class="fst-normal">
-    Address:<br>
-    {% for line in template_data.fields.location.lines %}
-    {{ line }}<br>
-    {% endfor %}
-</address>
-{% endif %}
+    <h2>
+        {{ template_data.fields.name }}
+    </h2>
 
-{% for exp in template_data.fields.experiences %}
-<div>{{ exp.title }} — {{ exp.company }}</div>
-{% endfor %}
+    <p class="muted">
+        {{ template_data.fields.headline }}
+    </p>
 
-{% for edu in template_data.fields.education %}
-<div>{{ edu.degree }} in {{ edu.field_of_study }} - {{ edu.institution }}</div>
-{% endfor %}
+</div>
+
+
+<div class="two-col">
+
+    <section class="card">
+
+        {% if template_data.fields.personal_email %}
+
+            <p>
+                <strong>Email:</strong>
+                {{ template_data.fields.personal_email }}
+            </p>
+
+        {% endif %}
+
+
+        {% if template_data.fields.phone_number %}
+
+            <p>
+                <strong>Phone:</strong>
+                {{ template_data.fields.phone_number }}
+            </p>
+
+        {% endif %}
+
+
+        {% if template_data.fields.location %}
+
+            <address>
+
+                <strong>Address:</strong>
+                <br>
+
+                {% for line in template_data.fields.location.lines %}
+                    {{ line }}<br>
+                {% endfor %}
+
+            </address>
+
+        {% endif %}
+
+    </section>
+
+
+    <section class="card">
+
+        <h3>Profile Information</h3>
+
+
+        {% for exp in template_data.fields.experiences %}
+
+            <div class="profile-section">
+
+                {{ exp.title }} — {{ exp.company }}
+
+            </div>
+
+        {% endfor %}
+
+
+        {% for edu in template_data.fields.education %}
+
+            <div class="profile-section">
+
+                {{ edu.degree }} in {{ edu.field_of_study }} - {{ edu.institution }}
+
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+</div>
+
+{% endblock %}

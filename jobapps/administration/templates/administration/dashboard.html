@@ -1,24 +1,60 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Administrator Dashboard</title>
-</head>
-<body>
+{% extends 'admin_base.html' %}
+
+{% block title %}
+Administrator Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-heading">
+
     <h1>Administrator Dashboard</h1>
 
-    <p>Welcome, {{ request.user.username }}.</p>
+    <p>
+        Welcome, {{ request.user.username }}.
+    </p>
 
-    <a href="{% url 'administration:user_list' %}">
+</div>
+
+
+<div class="admin-links">
+
+    <a
+        class="card"
+        href="{% url 'administration:user_list' %}"
+    >
         Manage Users
     </a>
-    <a href="{% url 'administration:export_users_csv' %}">
+
+
+    <a
+        class="card"
+        href="{% url 'administration:export_users_csv' %}"
+    >
         Download User Usage Report (CSV)
     </a>
-    <a href="{% url 'administration:job_list' %}">
+
+
+    <a
+        class="card"
+        href="{% url 'administration:job_list' %}"
+    >
         Manage Job Posts
     </a>
-    <a href="{% url 'administration:logout' %}">
+
+</div>
+
+
+<div class="actions">
+
+    <a
+        class="btn btn-secondary"
+        href="{% url 'administration:logout' %}"
+    >
         Logout
     </a>
-</body>
-</html>
+
+</div>
+
+{% endblock %}

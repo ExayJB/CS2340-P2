@@ -1,17 +1,51 @@
-<div class="p-3 mt-4">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow p-3 mb-4 rounded">
-                    <div class="card-body">
-                        <h2>Sign Up</h2>
-                        <hr />
-                        <form method="POST"> {% csrf_token %} {{ template_data.form.as_p }} <button type="submit"
-                                class="btn bg-dark text-white">Sign Up</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}
+Sign Up | JobApps
+{% endblock %}
+
+
+{% block content %}
+
+<section class="form-card card">
+
+    <div class="page-heading">
+
+        <h1>Create your account</h1>
+
+        <p class="muted">
+            Set up your JobApps profile.
+        </p>
+
     </div>
-</div>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {{ template_data.form.as_p }}
+
+        <button
+            class="btn btn-primary"
+            type="submit"
+        >
+            Create account
+        </button>
+
+    </form>
+
+
+    <p class="muted">
+
+        Already have an account?
+
+        <a href="{% url 'accounts.login' %}">
+            Log in
+        </a>.
+
+    </p>
+
+</section>
+
+{% endblock %}

@@ -1,73 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Recommended Jobs</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
-    <div class="p-3">
-        <div class="container">
+{% block title %}
+Recommended Jobs | JobApps
+{% endblock %}
 
-            <div class="row mt-3">
-                <div class="col-md-8 mx-auto">
 
-                    <h2>Recommended Jobs</h2>
+{% block content %}
 
-                    <p>
-                        These jobs are recommended based on the skills in your profile.
-                    </p>
+<div class="page-heading">
 
-                    <hr />
+    <h1>Recommended jobs</h1>
 
-                    {% for recommendation in template_data.recommendations %}
+    <p class="muted">
+        Matches are based on the skills listed in your profile.
+    </p>
 
-                        <h3>{{ recommendation.job.title }}</h3>
+</div>
 
-                        <p>
-                            <b>Company:</b>
-                            {{ recommendation.job.company }}
-                        </p>
 
-                        <p>
-                            <b>Location:</b>
-                            {{ recommendation.job.location }}
-                        </p>
+<div class="grid">
 
-                        <p>
-                            <b>Skill Match:</b>
-                            {{ recommendation.match_percentage }}%
-                        </p>
+    {% for recommendation in template_data.recommended_jobs %}
 
-                        <p>
-                            <b>Matching Skills:</b>
+        <article class="card job-card">
 
-                            {% for skill in recommendation.matching_skills %}
-                                {{ skill }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
+            <h3>
+                {{ recommendation.job.title }}
+            </h3>
 
-                        <a href="{% url 'jobs.show' id=recommendation.job.id %}">
-                            View Job
-                        </a>
 
-                        <hr />
+            <div class="meta">
 
-                    {% empty %}
+                <span>
+                    {{ recommendation.job.company }}
+                </span>
 
-                        <p>
-                            No jobs currently match the skills in your profile.
-                        </p>
+                <span>
+                    {{ recommendation.job.location }}
+                </span>
 
-                    {% endfor %}
-
-                    <a href="{% url 'jobs.index' %}">
-                        Back to Jobs
-                    </a>
-
-                </div>
             </div>
 
+
+            <p>
+                <strong>
+                    {{ recommendation.match_percentage }}% skill match
+                </strong>
+            </p>
+
+
+            <p class="muted">
+
+                Matches:
+
+                {% for skill in recommendation.matching_skills %}
+
+                    {{ skill }}
+
+                    {% if not forloop.last %}
+                        ,
+                    {% endif %}
+
+                {% endfor %}
+
+            </p>
+
+
+            <a
+                class="btn btn-primary"
+                href="{% url 'jobs.show' id=recommendation.job.id %}"
+            >
+                View job
+            </a>
+
+        </article>
+
+
+    {% empty %}
+
+        <div class="card empty">
+            No jobs currently match the skills in your profile.
         </div>
-    </div>
-</body>
-</html>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
