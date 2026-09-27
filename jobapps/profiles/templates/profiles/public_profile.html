@@ -1,0 +1,28 @@
+<h2>{{ template_data.fields.name }}</h2>
+<p>{{ template_data.fields.headline }}</p>
+
+{% if template_data.fields.personal_email %}
+<p>Email: {{ template_data.fields.personal_email }}</p>
+{% endif %}
+
+{% if template_data.fields.phone_number %}
+<p>Phone: {{ template_data.fields.phone_number }}</p>
+{% endif %}
+
+{% if template_data.fields.location %}
+
+<address class="fst-normal">
+    Address:<br>
+    {% for line in template_data.fields.location.lines %}
+    {{ line }}<br>
+    {% endfor %}
+</address>
+{% endif %}
+
+{% for exp in template_data.fields.experiences %}
+<div>{{ exp.title }} — {{ exp.company }}</div>
+{% endfor %}
+
+{% for edu in template_data.fields.education %}
+<div>{{ edu.degree }} in {{ edu.field_of_study }} - {{ edu.institution }}</div>
+{% endfor %}
