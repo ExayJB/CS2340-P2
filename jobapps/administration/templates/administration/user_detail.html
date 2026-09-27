@@ -1,29 +1,69 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Manage User</title>
-</head>
-<body>
+{% extends 'admin_base.html' %}
+
+{% block title %}
+Manage User
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-heading">
+
     <h1>Manage User</h1>
 
-    <p><strong>Username:</strong> {{ managed_user.username }}</p>
-    <p><strong>Email:</strong> {{ managed_user.email }}</p>
+</div>
+
+
+<section class="card form-card">
+
+    <p>
+        <strong>Username:</strong>
+        {{ managed_user.username }}
+    </p>
+
+
+    <p>
+        <strong>Email:</strong>
+        {{ managed_user.email }}
+    </p>
+
 
     <form method="post">
+
         {% csrf_token %}
 
         {{ form.as_p }}
 
-        <button type="submit">
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
             Save Changes
         </button>
+
     </form>
 
-    <a href="{% url 'administration:user_list' %}">
-        Back to Users
-    </a>
-    <a href="{% url 'administration:logout' %}">
-    Logout
-    </a>
-</body>
-</html>
+
+    <div class="actions">
+
+        <a
+            class="btn btn-secondary"
+            href="{% url 'administration:user_list' %}"
+        >
+            Back to Users
+        </a>
+
+
+        <a
+            class="btn btn-secondary"
+            href="{% url 'administration:logout' %}"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

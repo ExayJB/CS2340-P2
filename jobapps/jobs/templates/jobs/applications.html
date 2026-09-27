@@ -1,66 +1,92 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Applications</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
+{% block title %}
+My Applications | JobApps
+{% endblock %}
 
-    <h2>My Applications</h2>
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>My applications</h1>
+
+    <p class="muted">
+        Track the current stage of each application.
+    </p>
+
+</div>
+
+
+<div class="stack">
 
     {% for application in template_data.applications %}
 
-        <div>
-            <h3>{{ application.job.title }}</h3>
+        <article class="card">
 
-            <p>
-                <b>Company:</b>
-                {{ application.job.company }}
-            </p>
+            <h3>
+                {{ application.job.title }}
+            </h3>
 
-            <p>
-                <b>Current Status:</b>
-                {{ application.get_status_display }}
-            </p>
 
-            <!-- Show the full application process -->
-            <p>
-                Applied
-                →
-                Review
-                →
-                Interview
-                →
-                Offer
-                →
-                Closed
-            </p>
+            <div class="meta">
 
-            <!-- Show which stage the application is currently in -->
-            {% if application.status == 'APPLIED' %}
-                <p><b>You are currently at: Applied</b></p>
+                <span>
+                    {{ application.job.company }}
+                </span>
 
-            {% elif application.status == 'REVIEW' %}
-                <p><b>You are currently at: Review</b></p>
+                <span>
+                    Status: {{ application.get_status_display }}
+                </span>
 
-            {% elif application.status == 'INTERVIEW' %}
-                <p><b>You are currently at: Interview</b></p>
+            </div>
 
-            {% elif application.status == 'OFFER' %}
-                <p><b>You are currently at: Offer</b></p>
 
-            {% elif application.status == 'CLOSED' %}
-                <p><b>You are currently at: Closed</b></p>
-            {% endif %}
+            <div class="progress">
 
-            <hr />
-        </div>
+                <span
+                    class="{% if application.status == 'APPLIED' %}active{% endif %}"
+                >
+                    Applied
+                </span>
+
+                <span
+                    class="{% if application.status == 'REVIEW' %}active{% endif %}"
+                >
+                    Review
+                </span>
+
+                <span
+                    class="{% if application.status == 'INTERVIEW' %}active{% endif %}"
+                >
+                    Interview
+                </span>
+
+                <span
+                    class="{% if application.status == 'OFFER' %}active{% endif %}"
+                >
+                    Offer
+                </span>
+
+                <span
+                    class="{% if application.status == 'CLOSED' %}active{% endif %}"
+                >
+                    Closed
+                </span>
+
+            </div>
+
+        </article>
+
 
     {% empty %}
 
-        <p>You do not have any applications yet.</p>
+        <div class="card empty">
+            You do not have any applications yet.
+        </div>
 
     {% endfor %}
 
-</body>
-</html>
+</div>
+
+{% endblock %}

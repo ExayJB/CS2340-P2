@@ -1,88 +1,139 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ template_data.job.title }}</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
-    <div class="p-3">
-        <div class="container">
+{% block title %}
+{{ template_data.job.title }} | JobApps
+{% endblock %}
 
-            <div class="row mt-3">
-                <div class="col-md-8 mx-auto">
 
-                    <h2>{{ template_data.job.title }}</h2>
-                    <hr />
+{% block content %}
 
-                    <p>
-                        <b>Company:</b>
-                        {{ template_data.job.company }}
-                    </p>
+<div class="two-col">
 
-                    <p>
-                        <b>Location:</b>
-                        {{ template_data.job.location }}
-                    </p>
 
-                    <p>
-                        <b>Description:</b>
-                        {{ template_data.job.description }}
-                    </p>
+    <section class="card">
 
-                    <form method="post"
-                          action="{% url 'cart.add' id=template_data.job.id %}">
+        <div class="page-heading">
 
-                        {% csrf_token %}
+            <h1>
+                {{ template_data.job.title }}
+            </h1>
 
-                        <button type="submit">
-                            Add to Cart
-                        </button>
 
-                    </form>
+            <div class="meta">
 
-                    {% if user.is_authenticated %}
+                <span>
+                    {{ template_data.job.company }}
+                </span>
 
-                    <form method="POST"
-                        action="{% url 'applications:apply' id=template_data.job.id %}">
+                <span>
+                    {{ template_data.job.location }}
+                </span>
 
-                        {% csrf_token %}
-
-                        <p>
-                            <label for="note">
-                                <b>Personalized Note:</b>
-                            </label>
-                        </p>
-
-                        <textarea
-                            name="note"
-                            id="note"
-                            rows="5"
-                            placeholder="Tell the recruiter why you're interested in this position..."
-                            required></textarea>
-
-                        <br /><br />
-
-                        <button type="submit">
-                            Apply
-                        </button>
-
-                    </form>
-
-                    {% else %}
-
-                    <p>Please log in to apply for this position.</p>
-
-                    {% endif %}
-                    <br />
-
-                    <a href="{% url 'jobs.index' %}">
-                        Back to Jobs
-                    </a>
-
-                </div>
             </div>
 
         </div>
-    </div>
-</body>
-</html>
+
+
+        <h3>
+            Job description
+        </h3>
+
+        <p>
+            {{ template_data.job.description }}
+        </p>
+
+
+        <div class="actions">
+
+            <form
+                method="post"
+                action="{% url 'cart.add' id=template_data.job.id %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    class="btn btn-secondary"
+                    type="submit"
+                >
+                    Save job
+                </button>
+
+            </form>
+
+
+            <a
+                class="btn btn-secondary"
+                href="{% url 'jobs.index' %}"
+            >
+                Back to jobs
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <aside class="card">
+
+        <h3>
+            Apply
+        </h3>
+
+
+        {% if user.is_authenticated %}
+
+            <form
+                method="post"
+                action="{% url 'applications:apply' id=template_data.job.id %}"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label for="note">
+                        Personalized note
+                    </label>
+
+                    <textarea
+                        name="note"
+                        id="note"
+                        placeholder="Tell the recruiter why you're interested..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    Submit application
+                </button>
+
+            </form>
+
+
+        {% else %}
+
+            <p class="muted">
+                Log in before applying.
+            </p>
+
+            <a
+                class="btn btn-primary"
+                href="{% url 'accounts.login' %}"
+            >
+                Log in
+            </a>
+
+        {% endif %}
+
+    </aside>
+
+</div>
+
+{% endblock %}

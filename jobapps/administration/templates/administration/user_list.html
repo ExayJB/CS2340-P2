@@ -1,54 +1,124 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Users</title>
-</head>
-<body>
+{% extends 'admin_base.html' %}
+
+{% block title %}
+Manage Users
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-heading">
+
     <h1>Manage Users</h1>
 
-    <a href="{% url 'administration:dashboard' %}">
+</div>
+
+
+<div class="actions">
+
+    <a
+        class="btn btn-secondary"
+        href="{% url 'administration:dashboard' %}"
+    >
         Back to Dashboard
     </a>
-    <a href="{% url 'administration:logout' %}">
-    Logout
+
+
+    <a
+        class="btn btn-secondary"
+        href="{% url 'administration:logout' %}"
+    >
+        Logout
     </a>
 
-    <table border="1">
+</div>
+
+
+<div class="table-wrap">
+
+    <table>
+
         <thead>
+
             <tr>
+
                 <th>Username</th>
+
                 <th>Email</th>
+
                 <th>Role</th>
+
                 <th>Active</th>
+
                 <th>Action</th>
+
             </tr>
+
         </thead>
 
+
         <tbody>
+
             {% for user in users %}
+
                 <tr>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.get_base_role_display }}</td>
+
                     <td>
-                        {% if user.is_active %}
-                            Yes
-                        {% else %}
-                            No
-                        {% endif %}
+                        {{ user.username }}
                     </td>
+
                     <td>
-                        <a href="{% url 'administration:user_detail' user.id %}">
+                        {{ user.email }}
+                    </td>
+
+                    <td>
+                        {{ user.get_base_role_display }}
+                    </td>
+
+                    <td>
+
+                        {% if user.is_active %}
+
+                            Yes
+
+                        {% else %}
+
+                            No
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            class="btn btn-secondary btn-small"
+                            href="{% url 'administration:user_detail' user.id %}"
+                        >
                             Manage
                         </a>
+
                     </td>
+
                 </tr>
+
+
             {% empty %}
+
                 <tr>
-                    <td colspan="5">No users found.</td>
+
+                    <td colspan="5">
+                        No users found.
+                    </td>
+
                 </tr>
+
             {% endfor %}
+
         </tbody>
+
     </table>
-</body>
-</html>
+
+</div>
+
+{% endblock %}

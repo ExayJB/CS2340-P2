@@ -1,53 +1,69 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Job Postings</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
-    <div class="p-3">
-        <div class="container">
-            <div class="row mt-3">
-                <div class="col mx-auto mb-3">
-                    <h2>Job Postings</h2>
-                    <hr />
-                </div>
+{% block title %}
+Jobs | JobApps
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>Find your next opportunity</h1>
+
+    <p class="muted">
+        Browse current job postings and save the ones you want to revisit.
+    </p>
+
+</div>
+
+
+<div class="grid">
+
+    {% for job in template_data.jobs %}
+
+        <article class="card job-card">
+
+            <h3>
+                {{ job.title }}
+            </h3>
+
+
+            <div class="meta">
+
+                <span>
+                    {{ job.company }}
+                </span>
+
+                <span>
+                    {{ job.location }}
+                </span>
+
             </div>
 
-            <div class="row">
-                {% for job in template_data.jobs %}
-                <div class="col-md-4 col-lg-3 mb-3">
-                    <div class="card p-3 h-100">
-                        <div class="card-body">
 
-                            <h5 class="card-title">
-                                {{ job.title }}
-                            </h5>
+            <div class="actions">
 
-                            <p>
-                                <b>Company:</b>
-                                {{ job.company }}
-                            </p>
+                <a
+                    class="btn btn-primary"
+                    href="{% url 'jobs.show' id=job.id %}"
+                >
+                    View job
+                </a>
 
-                            <p>
-                                <b>Location:</b>
-                                {{ job.location }}
-                            </p>
-
-                            <a href="{% url 'jobs.show' id=job.id %}">
-                                View Job
-                            </a>
-
-                        </div>
-                    </div>
-                </div>
-
-                {% empty %}
-                <p>No job postings available.</p>
-
-                {% endfor %}
             </div>
+
+        </article>
+
+
+    {% empty %}
+
+        <div class="card empty">
+            No job postings are available right now.
         </div>
-    </div>
-</body>
-</html>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

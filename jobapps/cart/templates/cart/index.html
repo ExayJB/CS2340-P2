@@ -1,71 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Saved Jobs</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
+{% block title %}
+Saved Jobs | JobApps
+{% endblock %}
 
-    <h2>Saved Jobs</h2>
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>Saved jobs</h1>
+
+    <p class="muted">
+        Keep track of positions you may want to apply to.
+    </p>
+
+</div>
+
+
+<div class="stack">
 
     {% for job in template_data.jobs_in_cart %}
 
-        <div>
-            <h3>{{ job.title }}</h3>
+        <article class="card job-card">
 
-            <p>
-                <b>Company:</b>
-                {{ job.company }}
-            </p>
+            <h3>
+                {{ job.title }}
+            </h3>
 
-            <p>
-                <b>Location:</b>
-                {{ job.location }}
-            </p>
 
-            <!-- Opens the full page for this job -->
-            <a href="{% url 'jobs.show' id=job.id %}">
-                View Job
-            </a>
+            <div class="meta">
 
-            <br />
-            <br />
+                <span>
+                    {{ job.company }}
+                </span>
 
-            <!-- Removes only this specific job from the cart -->
-            <a href="{% url 'cart.remove' id=job.id %}">
-                <button type="button">
-                    Remove from Cart
-                </button>
-            </a>
+                <span>
+                    {{ job.location }}
+                </span>
 
-            <hr />
-        </div>
+            </div>
+
+
+            <div class="actions">
+
+                <a
+                    class="btn btn-primary"
+                    href="{% url 'jobs.show' id=job.id %}"
+                >
+                    View job
+                </a>
+
+                <a
+                    class="btn btn-danger"
+                    href="{% url 'cart.remove' id=job.id %}"
+                >
+                    Remove
+                </a>
+
+            </div>
+
+        </article>
+
 
     {% empty %}
 
-        <p>Your cart is empty.</p>
+        <div class="card empty">
+
+            You have not saved any jobs yet.
+
+            <a href="{% url 'jobs.index' %}">
+                Browse jobs
+            </a>.
+
+        </div>
 
     {% endfor %}
 
+</div>
 
-    <!-- Only show this button when there is at least one saved job -->
-    {% if template_data.jobs_in_cart|length > 0 %}
 
-        <a href="{% url 'cart.clear' %}">
-            <button type="button">
-                Remove All Jobs from Cart
-            </button>
+{% if template_data.jobs_in_cart|length > 0 %}
+
+    <div class="actions">
+
+        <a
+            class="btn btn-danger"
+            href="{% url 'cart.clear' %}"
+        >
+            Clear all saved jobs
         </a>
 
-        <br />
-        <br />
+    </div>
 
-    {% endif %}
+{% endif %}
 
-
-    <a href="{% url 'jobs.index' %}">
-        Browse Jobs
-    </a>
-
-</body>
-</html>
+{% endblock %}
