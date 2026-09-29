@@ -17,9 +17,153 @@ Jobs | JobApps
 
 </div>
 
-<a class="btn btn-secondary" href="{% url 'jobs.map' %}">
-    View jobs on a map
-</a>
+
+<section class="card job-filter-card">
+
+    <form method="get" class="job-filter-form">
+
+        <div class="filter-grid">
+
+            <div class="form-group">
+                <label for="title">Job Title</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="{{ template_data.filters.title }}"
+                    placeholder="Software Engineer"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="skills">Skills</label>
+
+                <input
+                    type="text"
+                    id="skills"
+                    name="skills"
+                    value="{{ template_data.filters.skills }}"
+                    placeholder="Python, Django"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="location">Location</label>
+
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value="{{ template_data.filters.location }}"
+                    placeholder="Atlanta"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="min_salary">Minimum Salary</label>
+
+                <input
+                    type="number"
+                    id="min_salary"
+                    name="min_salary"
+                    value="{{ template_data.filters.min_salary }}"
+                    placeholder="60000"
+                    min="0"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="max_salary">Maximum Salary</label>
+
+                <input
+                    type="number"
+                    id="max_salary"
+                    name="max_salary"
+                    value="{{ template_data.filters.max_salary }}"
+                    placeholder="100000"
+                    min="0"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="work_mode">Work Mode</label>
+
+                <select
+                    id="work_mode"
+                    name="work_mode"
+                >
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option
+                        value="REMOTE"
+                        {% if template_data.filters.work_mode == 'REMOTE' %}
+                            selected
+                        {% endif %}
+                    >
+                        Remote
+                    </option>
+
+                    <option
+                        value="ONSITE"
+                        {% if template_data.filters.work_mode == 'ONSITE' %}
+                            selected
+                        {% endif %}
+                    >
+                        On-site
+                    </option>
+
+                    <option
+                        value="HYBRID"
+                        {% if template_data.filters.work_mode == 'HYBRID' %}
+                            selected
+                        {% endif %}
+                    >
+                        Hybrid
+                    </option>
+
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Search Jobs
+            </button>
+
+            <a
+                href="{% url 'jobs.index' %}"
+                class="btn btn-secondary"
+            >
+                Clear Filters
+            </a>
+
+            <a
+                class="btn btn-secondary"
+                href="{% url 'jobs.map' %}"
+            >
+                View jobs on a map
+            </a>
+
+        </div>
+
+    </form>
+
+</section>
+
 
 <div class="grid">
 
@@ -42,7 +186,41 @@ Jobs | JobApps
                     {{ job.location }}
                 </span>
 
+                <span>
+                    {{ job.get_work_mode_display }}
+                </span>
+
+                {% if job.salary_min or job.salary_max %}
+
+                    <span>
+
+                        {% if job.salary_min %}
+                            ${{ job.salary_min|floatformat:0 }}
+                        {% endif %}
+
+                        {% if job.salary_min and job.salary_max %}
+                            -
+                        {% endif %}
+
+                        {% if job.salary_max %}
+                            ${{ job.salary_max|floatformat:0 }}
+                        {% endif %}
+
+                    </span>
+
+                {% endif %}
+
             </div>
+
+
+            {% if job.required_skills %}
+
+                <p class="muted">
+                    <strong>Skills:</strong>
+                    {{ job.required_skills }}
+                </p>
+
+            {% endif %}
 
 
             <div class="actions">
@@ -62,7 +240,20 @@ Jobs | JobApps
     {% empty %}
 
         <div class="card empty">
-            No job postings are available right now.
+
+            <h3>No jobs found</h3>
+
+            <p>
+                Try changing or clearing your search filters.
+            </p>
+
+            <a
+                href="{% url 'jobs.index' %}"
+                class="btn btn-secondary"
+            >
+                Clear Filters
+            </a>
+
         </div>
 
     {% endfor %}

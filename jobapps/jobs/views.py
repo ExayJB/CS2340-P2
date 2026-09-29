@@ -7,17 +7,48 @@ from django.urls import reverse
 
 
 def index(request):
-    jobs = JobPosting.objects.all()
+    jobs = JobPosting.objects.filter(is_active=True)
 
-    template_data = {}
-    template_data['title'] = 'Jobs'
-    template_data['jobs'] = jobs
+    title = request.GET.get('title', '').strip()
+    skills = request.GET.get('skills', '').strip()
+    location = request.GET.get('location', '').strip()
+    min_salary = request.GET.get('min_salary', '').strip()
+    max_salary = request.GET.get('max_salary', '').strip()
+    work_mode = request.GET.get('work_mode', '').strip()
 
-    return render(
-        request,
-        'jobs/index.html',
-        {'template_data': template_data}
-    )
+    if title:
+        jobs = jobs.filter(title__icontains=title)
+
+    if skills:
+        jobs = jobs.filter(required_skills__icontains=skills)
+
+    if location:
+        jobs = jobs.filter(location__icontains=location)
+
+    if min_salary:
+        jobs = jobs.filter(salary_max__gte=min_salary)
+
+    if max_salary:
+        jobs = jobs.filter(salary_min__lte=max_salary)
+
+    if work_mode:
+        jobs = jobs.filter(work_mode=work_mode)
+
+    template_data = {
+        'jobs': jobs,
+        'filters': {
+            'title': title,
+            'skills': skills,
+            'location': location,
+            'min_salary': min_salary,
+            'max_salary': max_salary,
+            'work_mode': work_mode,
+        }
+    }
+
+    return render(request, 'jobs/index.html', {
+        'template_data': template_data
+    })
 def map_view(request):
     jobs = JobPosting.objects.filter(
         is_active=True,
