@@ -29,10 +29,42 @@ Jobs Near Me | JobApps
     </p>
 
     <button class="btn btn-secondary" id="locate-me" type="button">
-        Use my location
-    </button>
+    Use my location
+</button>
 
-    <p class="muted" id="map-status" aria-live="polite"></p>
+<label for="distance-filter">
+    Filter Jobs by Distance:
+</label>
+
+<select id="distance-filter" disabled>
+    <option value="all">All distances</option>
+    <option value="5">Within 5 miles</option>
+    <option value="10">Within 10 miles</option>
+    <option value="25">Within 25 miles</option>
+    <option value="50">Within 50 miles</option>
+</select>
+
+<label for="commute-radius">
+    Preferred Commute Radius:
+</label>
+
+<select id="commute-radius" disabled>
+    <option value="none">No preference</option>
+    <option value="5">5 miles</option>
+    <option value="10">10 miles</option>
+    <option value="25">25 miles</option>
+    <option value="50">50 miles</option>
+</select>
+
+<button
+    class="btn btn-secondary"
+    id="save-commute-radius"
+    type="button"
+    disabled>
+    Set Preference
+</button>
+
+<p class="muted" id="map-status" aria-live="polite"></p>
 </div>
 
 <div class="card">
@@ -90,11 +122,15 @@ Jobs Near Me | JobApps
         ]).addTo(map);
 
         marker.bindPopup(makePopup(job));
-        markers.push(marker);
+
+        markers.push({
+            marker: marker,
+            job: job
+        });
     }
 
     if (markers.length > 0) {
-        const bounds = L.featureGroup(markers).getBounds();
+        const bounds = L.featureGroup(markers.map(item => item.marker)).getBounds();
         map.fitBounds(bounds.pad(0.15));
         status.textContent = "Showing " + markers.length + " available jobs.";
     } else {
@@ -103,46 +139,219 @@ Jobs Near Me | JobApps
     }
 
     let myLocationMarker = null;
+    let userLocation = null;
+    let commuteRadiusCircle = null;
 
-    document.getElementById("locate-me").addEventListener("click", () => {
-        if (!navigator.geolocation) {
-            status.textContent =
-                "Location is not available in this browser.";
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const earthRadiusMiles = 3958.8;
+
+        const toRadians = degrees => {
+            return degrees * Math.PI / 180;
+        };
+
+        const latDifference = toRadians(lat2 - lat1);
+        const lonDifference = toRadians(lon2 - lon1);
+
+        const a =
+            Math.sin(latDifference / 2) ** 2 +
+            Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(lonDifference / 2) ** 2;
+
+        const c = 2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+        return earthRadiusMiles * c;
+    }
+
+    function showCommuteRadius(radius) {
+        if (!userLocation) {
             return;
         }
 
-        status.textContent = "Finding your location…";
+        if (commuteRadiusCircle) {
+            map.removeLayer(commuteRadiusCircle);
+            commuteRadiusCircle = null;
+        }
 
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                const location = [
-                    position.coords.latitude,
-                    position.coords.longitude
-                ];
+        if (radius === "none") {
+            return;
+        }
 
-                if (myLocationMarker) {
-                    map.removeLayer(myLocationMarker);
-                }
-
-                myLocationMarker = L.circleMarker(location, {
-                    radius: 8,
-                    color: "#2563eb",
-                    fillColor: "#60a5fa",
-                    fillOpacity: 0.9
-                })
-                    .addTo(map)
-                    .bindPopup("You are here")
-                    .openPopup();
-
-                map.setView(location, 12);
-                status.textContent =
-                    "Your location is shown. Select a job marker to view its posting.";
-            },
-            () => {
-                status.textContent =
-                    "Could not get your location. You can still browse the job markers.";
+        commuteRadiusCircle = L.circle(
+            [
+                userLocation.latitude,
+                userLocation.longitude
+            ],
+            {
+                radius: Number(radius) * 1609.34,
+                color: "#2563eb",
+                fillColor: "#60a5fa",
+                fillOpacity: 0.12
             }
+        ).addTo(map);
+    }
+
+    document.getElementById("locate-me").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+        status.textContent =
+            "Location is not available in this browser.";
+        return;
+    }
+
+    status.textContent = "Finding your location…";
+
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            const location = [
+                position.coords.latitude,
+                position.coords.longitude
+            ];
+
+            userLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            };
+
+            document.getElementById(
+                "distance-filter"
+            ).disabled = false;
+
+            document.getElementById(
+                "commute-radius"
+            ).disabled = false;
+
+            document.getElementById(
+                "save-commute-radius"
+            ).disabled = false;
+
+            if (myLocationMarker) {
+                map.removeLayer(myLocationMarker);
+            }
+
+            myLocationMarker = L.circleMarker(location, {
+                radius: 8,
+                color: "#2563eb",
+                fillColor: "#60a5fa",
+                fillOpacity: 0.9
+            })
+                .addTo(map)
+                .bindPopup("You are here")
+                .openPopup();
+
+            map.setView(location, 12);
+
+            const savedRadius = localStorage.getItem(
+                "preferredCommuteRadius"
+            );
+
+            if (savedRadius) {
+                document.getElementById(
+                    "commute-radius"
+                ).value = savedRadius;
+
+                showCommuteRadius(savedRadius);
+            }
+
+            status.textContent =
+                "Your location is shown. " +
+                "You can now filter jobs or set your preferred commute radius.";
+        },
+        () => {
+            status.textContent =
+                "Could not get your location. " +
+                "You can still browse the job markers.";
+        }
+    );
+});
+
+        document.getElementById(
+            "distance-filter"
+        ).addEventListener("change", event => {
+        
+            if (!userLocation) {
+                return;
+            }
+        
+            const selectedDistance = event.target.value;
+            let visibleJobs = 0;
+        
+            for (const item of markers) {
+                const distance = calculateDistance(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    item.job.latitude,
+                    item.job.longitude
+                );
+            
+                if (
+                    selectedDistance === "all" ||
+                    distance <= Number(selectedDistance)
+                ) {
+                    item.marker.addTo(map);
+                    visibleJobs++;
+                } else {
+                    map.removeLayer(item.marker);
+                }
+            }
+        
+            if (selectedDistance === "all") {
+                status.textContent =
+                    "Showing all " +
+                    visibleJobs +
+                    " available jobs.";
+            } else {
+                status.textContent =
+                    "Showing " +
+                    visibleJobs +
+                    " jobs within " +
+                    selectedDistance +
+                    " miles.";
+            }
+        });
+
+    document.getElementById(
+        "save-commute-radius"
+    ).addEventListener("click", () => {
+    
+        if (!userLocation) {
+            return;
+        }
+    
+        const radius = document.getElementById(
+            "commute-radius"
+        ).value;
+    
+        localStorage.setItem(
+            "preferredCommuteRadius",
+            radius
         );
+            
+        showCommuteRadius(radius);
+            
+        if (radius === "none") {
+            status.textContent =
+                "Preferred commute radius removed.";
+        } else {
+            status.textContent =
+                "Preferred commute radius set to " +
+                radius +
+                " miles.";
+        }
+    
+        showCommuteRadius(radius);
+    
+        if (radius === "none") {
+            status.textContent =
+                "Preferred commute radius removed.";
+        } else {
+            status.textContent =
+                "Preferred commute radius set to " +
+                radius +
+                " miles.";
+        }
     });
 </script>
 {% endblock %}
