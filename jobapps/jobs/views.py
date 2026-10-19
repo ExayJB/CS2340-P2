@@ -4,7 +4,11 @@ from applications.models import Application
 from profiles.models import JobSeekerProfile
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+from .forms import JobPostingForm
 
 def index(request):
     jobs = JobPosting.objects.filter(is_active=True)
@@ -148,3 +152,114 @@ def recommendations(request):
         'jobs/recommendations.html',
         {'template_data' : template_data}
     )
+
+def require_recruiter(user):
+    if user.base_role != 'RECRUITER' or not hasattr(user, 'recruiter_profile'):
+        raise PermissionDenied("You must be a recruiter to access this page.")
+
+@login_required
+def recruiter_jobs(request):
+    require_recruiter(request.user)
+
+    jobs = JobPosting.objects.filter(
+        recruiter=request.user
+    ).order_by('-id')
+
+    return render(request, 'jobs/recruiter_jobs.html', {
+        'jobs': jobs,
+    })
+
+@login_required
+def create_job(request):
+    require_recruiter(request.user)
+
+    form = JobPostingForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        job = form.save(commit=False)
+        job.recruiter = request.user
+        job.save()
+
+        messages.success(request, 'Job posting created successfully.')
+        return redirect('jobs.recruiter_jobs')
+
+    return render(request, 'jobs/job_form.html', {
+        'form': form,
+        'page_title': 'Create Job Posting',
+    })
+
+@login_required
+def edit_job(request, id):
+    require_recruiter(request.user)
+
+    job = get_object_or_404(JobPosting, id=id, recruiter=request.user)
+
+    form = JobPostingForm(request.POST or None, instance=job)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Job posting updated successfully.')
+        return redirect('jobs.recruiter_jobs')
+
+    return render(request, 'jobs/job_form.html', {
+        'form': form,
+        'page_title': 'Edit Job Posting',
+    })
+
+@login_required
+def recruiter_dashboard(request):
+    require_recruiter(request.user)
+
+    my_jobs = JobPosting.objects.filter(recruiter=request.user)
+
+    context = {
+        'total_jobs': my_jobs.count(),
+        'active_jobs': my_jobs.filter(is_active=True).count(),
+        'inactive_jobs': my_jobs.filter(is_active=False).count(),
+        'recent_jobs': my_jobs.order_by('-id')[:5],
+    }
+
+    return render(request, 'jobs/recruiter_dashboard.html', context)
+
+@login_required
+def search_candidates(request):
+    require_recruiter(request.user)
+
+    skills = request.GET.get('skills', '').strip()
+    location = request.GET.get('location', '').strip()
+    projects = request.GET.get('projects', '').strip()
+
+    candidates = JobSeekerProfile.objects.filter(is_discoverable=True, user__is_active=True).select_related('user', 'personal_address')
+
+    if skills:
+        candidates = candidates.filter(skills__icontains=skills)
+    if location:
+        candidates = candidates.exclude(
+            location_visibility='HIDDEN'
+        ).filter(
+            Q(personal_address__city__icontains=location) |
+            Q(personal_address__state_province__icontains=location)
+        )
+    if projects:
+        candidates = candidates.filter(projects__icontains=projects)
+
+    results = []
+
+    for candidate in candidates.order_by('user__username'):
+        visible = candidate.visible_to(request.user)
+
+        results.append({
+            'username': candidate.user.username,
+            'name': visible['name'],
+            'headline': visible['headline'],
+            'skills': visible['skills'],
+            'projects': visible['projects'],
+            'location': visible.get('location'),
+        })
+    
+    return render(request, 'jobs/search_candidates.html', {
+        'candidates': results,
+        'skills': skills,
+        'location': location,
+        'projects': projects,
+    })

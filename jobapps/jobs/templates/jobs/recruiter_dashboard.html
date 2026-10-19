@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Recruiter Dashboard | JobApps{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h1>Recruiter Dashboard</h1>
+    <p class="muted">
+        Welcome back, {{ user.username }}!
+        Manage your openings and find the right talent.
+    </p>
+</div>
+
+<div class="grid">
+    <div class="card">
+        <h2>{{ total_jobs }}</h2>
+        <p>Total Job Postings</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ active_jobs }}</h2>
+        <p>Active Openings</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ inactive_jobs }}</h2>
+        <p>Inactive Openings</p>
+    </div>
+</div>
+
+<h2>Quick Actions</h2>
+
+<div class="grid">
+    <div class="card">
+        <h3>Post a Job</h3>
+        <p>Create a new opening for candidates to apply.</p>
+        <a class="btn btn-primary"
+           href="{% url 'jobs.create_job' %}">
+            Create Job
+        </a>
+    </div>
+
+    <div class="card">
+        <h3>Manage Job Postings</h3>
+        <p>Edit and manage your existing openings.</p>
+        <a class="btn btn-primary"
+           href="{% url 'jobs.recruiter_jobs' %}">
+            Manage Jobs
+        </a>
+    </div>
+
+    <div class="card">
+    <h3>Find Candidates</h3>
+
+    <p>
+        Search for candidates by skills,
+        location, and projects.
+    </p>
+
+    <a class="btn btn-primary"
+       href="{% url 'jobs.search_candidates' %}">
+        Search Candidates
+    </a>
+</div>
+    </div>
+</div>
+
+<h2>Recent Job Postings</h2>
+
+<div class="grid">
+    {% for job in recent_jobs %}
+    <div class="card">
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.company }} — {{ job.location }}</p>
+
+        <p>
+            {% if job.is_active %}
+                Active
+            {% else %}
+                Inactive
+            {% endif %}
+        </p>
+
+        <a class="btn btn-secondary"
+           href="{% url 'jobs.edit_job' id=job.id %}">
+            Edit Posting
+        </a>
+    </div>
+    {% empty %}
+    <div class="card">
+        <p>You haven't posted any jobs yet.</p>
+        <a class="btn btn-primary"
+           href="{% url 'jobs.create_job' %}">
+            Post Your First Job
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

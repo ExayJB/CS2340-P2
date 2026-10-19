@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Jobs | JobApps{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Manage Job Postings</h1>
+    <p class="muted">Create and update your job openings.</p>
+
+    <a class="btn btn-primary" href="{% url 'jobs.create_job' %}">
+        Post New Job
+    </a>
+</div>
+
+<div class="grid">
+    {% for job in jobs %}
+    <article class="card job-card">
+        <h3>{{ job.title }}</h3>
+
+        <p>{{ job.company }} — {{ job.location }}</p>
+
+        <p>
+            {% if job.is_active %}
+                Active
+            {% else %}
+                Inactive
+            {% endif %}
+        </p>
+
+        <div class="actions">
+            <a class="btn btn-secondary" href="{% url 'jobs.edit_job' id=job.id %}">
+                Edit Job
+            </a>
+
+            <a class="btn btn-primary" href="{% url 'jobs.show' id=job.id %}">
+                View Job
+            </a>
+        </div>
+    </article>
+    {% empty %}
+    <p>You haven't posted any jobs yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

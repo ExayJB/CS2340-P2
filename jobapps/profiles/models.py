@@ -22,6 +22,7 @@ class JobSeekerProfile(models.Model):
     personal_address = models.OneToOneField('UserAddress', on_delete=models.SET_NULL, null=True, blank=True, related_name='job_seeker_profile')
     headline = models.CharField(max_length=255)
     skills = models.TextField()
+    projects = models.TextField(blank=True, default='')
     contact_visibility = models.CharField(max_length=12, choices=Visibility, default=Visibility.APPLIED)
     identity_visibility = models.CharField(max_length=12, choices=Visibility, default=Visibility.RECRUITERS)
     history_visibility = models.CharField(max_length=12, choices=Visibility, default=Visibility.RECRUITERS)
@@ -52,6 +53,11 @@ class JobSeekerProfile(models.Model):
         return 'APPLIED' if self._has_application_to(recruiter) else 'RECRUITER'
 
     def _location_for(self, rel):
+        if self.personal_address is None:
+            return None
+        if self.location_visibility == LocationVisibility.HIDDEN:
+            return None
+        
         addr = self.personal_address
         if self.location_visibility == LocationVisibility.EXACT and rel in ('SELF', 'APPLIED'):
             lines = [addr.address_line_1]
@@ -72,7 +78,8 @@ class JobSeekerProfile(models.Model):
         data = {
             'username': self.user.username,
             'headline': self.headline,
-            'skills': self.skills_list
+            'skills': self.skills_list,
+            'projects': self.projects,
         }
 
         if permits(self.identity_visibility, rel):
