@@ -243,6 +243,63 @@ My Profile | JobApps
 
         </div>
 
+        <div class="profile-section">
+
+            <h4>Links</h4>
+
+            {{ template_data.link_formset.management_form }}
+
+            {% for link_form in template_data.link_formset %}
+
+                <div class="form-group">
+
+                    {{ link_form.id }}
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label>Label: </label>
+                            {{ link_form.label }}
+                        </div>
+
+                        <div class="form-group">
+                            <label>URL: </label>
+                            {{ link_form.url }}
+                        </div>
+
+                        {% if link_form.instance.pk %}
+
+                            <div class="form-group danger-text">
+                                <label>
+                                    {{ link_form.DELETE }}
+                                    Remove this link row
+                                </label>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+
+            <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-add="links"
+            >
+                Add another link
+            </button>
+
+
+            <template id="tpl-links">
+                {{ template_data.link_formset.empty_form }}
+            </template>
+
+        </div>
+
 
         <div class="profile-section">
 

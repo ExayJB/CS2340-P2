@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory, RadioSelect
-from .models import JobSeekerProfile, WorkExperience, Education, UserAddress, RecruiterProfile
+from .models import JobSeekerProfile, WorkExperience, Education, UserAddress, ProfileLink, RecruiterProfile
 
 
 class JobSeekerProfileForm(forms.ModelForm):
@@ -40,6 +40,18 @@ EducationFormset = inlineformset_factory(
     fields=['institution', 'degree', 'field_of_study', 'end_date'],
     widgets={
         'end_date': DateInput(),
+    },
+    extra=1,
+    can_delete=True,
+)
+
+LinkFormset = inlineformset_factory(
+    JobSeekerProfile,
+    ProfileLink,
+    fields=['label', 'url'],
+    widgets={
+        'label': forms.TextInput(attrs={'class': 'form-control'}),
+        'url': forms.URLInput(attrs={'class': 'form-control'}),
     },
     extra=1,
     can_delete=True,

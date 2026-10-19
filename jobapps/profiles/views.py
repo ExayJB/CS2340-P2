@@ -3,7 +3,7 @@ from django.http import Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import JobSeekerProfileForm, AddressForm, ExperienceFormset, EducationFormset, PrivacyForm
+from .forms import JobSeekerProfileForm, AddressForm, ExperienceFormset, EducationFormset, LinkFormset, PrivacyForm
 from .models import JobSeekerProfile
 
 @login_required
@@ -19,12 +19,14 @@ def profile_dashboard(request):
             address_form = AddressForm(request.POST, instance=profile.personal_address)
             exp_formset = ExperienceFormset(request.POST, instance=profile)
             edu_formset = EducationFormset(request.POST, instance=profile)
+            link_formset = LinkFormset(request.POST, instance=profile)
             privacy_form = PrivacyForm(request.POST, instance=profile)
 
-            if form.is_valid() and exp_formset.is_valid() and edu_formset.is_valid() and privacy_form.is_valid():
+            if form.is_valid() and exp_formset.is_valid() and edu_formset.is_valid() and link_formset.is_valid() and privacy_form.is_valid():
                 form.save()
                 exp_formset.save()
                 edu_formset.save()
+                link_formset.save()
                 privacy_form.save()
 
                 address_ok = True
@@ -47,6 +49,7 @@ def profile_dashboard(request):
             address_form = AddressForm(instance=profile.personal_address)
             exp_formset = ExperienceFormset(instance=profile)
             edu_formset = EducationFormset(instance=profile)
+            link_formset = LinkFormset(instance=profile)
             privacy_form = PrivacyForm(instance=profile)
 
         template_data['form'] = form
@@ -54,6 +57,7 @@ def profile_dashboard(request):
         template_data['address_form'] = address_form
         template_data['exp_formset'] = exp_formset
         template_data['edu_formset'] = edu_formset
+        template_data['link_formset'] = link_formset
         template_data['privacy_form'] = privacy_form
         return render(request, 'profiles/dashboard_job_seeker.html', {'template_data': template_data})
 

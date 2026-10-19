@@ -25,36 +25,36 @@
 
         {% if template_data.fields.personal_email %}
 
-            <p>
-                <strong>Email:</strong>
-                {{ template_data.fields.personal_email }}
-            </p>
+        <p>
+            <strong>Email:</strong>
+            {{ template_data.fields.personal_email }}
+        </p>
 
         {% endif %}
 
 
         {% if template_data.fields.phone_number %}
 
-            <p>
-                <strong>Phone:</strong>
-                {{ template_data.fields.phone_number }}
-            </p>
+        <p>
+            <strong>Phone:</strong>
+            {{ template_data.fields.phone_number }}
+        </p>
 
         {% endif %}
 
 
         {% if template_data.fields.location %}
 
-            <address>
+        <address>
 
-                <strong>Address:</strong>
-                <br>
+            <strong>Address:</strong>
+            <br>
 
-                {% for line in template_data.fields.location.lines %}
-                    {{ line }}<br>
-                {% endfor %}
+            {% for line in template_data.fields.location.lines %}
+            {{ line }}<br>
+            {% endfor %}
 
-            </address>
+        </address>
 
         {% endif %}
 
@@ -68,25 +68,28 @@
 
         {% for exp in template_data.fields.experiences %}
 
-            <div class="profile-section">
+        <div class="profile-section">
 
-                {{ exp.title }} — {{ exp.company }}
+            {{ exp.title }} — {{ exp.company }}
 
-            </div>
+        </div>
 
         {% endfor %}
 
 
         {% for edu in template_data.fields.education %}
 
-            <div class="profile-section">
+        <div class="profile-section">
 
-                {{ edu.degree }} in {{ edu.field_of_study }} - {{ edu.institution }}
+            {{ edu.degree }} in {{ edu.field_of_study }} - {{ edu.institution }}
 
-            </div>
+        </div>
 
         {% endfor %}
 
+        {% for link in template_data.fields.links %}
+        <a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.label }}</a><br>
+        {% endfor %}
     </section>
 
 </div>
