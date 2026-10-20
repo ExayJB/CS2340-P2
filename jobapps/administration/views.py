@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 import csv
-
+from .models import Report
 from django.http import HttpResponse
 from .forms import UserManagementForm
 from .decorators import administrator_required
@@ -179,3 +179,25 @@ def restore_job(request, job_id):
         'administration:job_detail',
         job_id=job.id
     )
+@administrator_required
+def report_list(request):
+    # Show newest reports first
+    reports = Report.objects.all().order_by('-time_created')
+
+    return render(
+        request,
+        'administration/report_list.html',
+        {'reports': reports}
+    )
+
+
+@administrator_required
+def update_report_status(request, report_id):
+    # find report admin wants to update
+    report = get_object_or_404(Report, id=report_id)
+
+    if request.method == 'POST':
+        report.status = request.POST.get('status')
+        report.save()
+
+    return redirect('administration:report_list')
