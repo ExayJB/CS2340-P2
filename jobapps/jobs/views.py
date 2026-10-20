@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import JobPosting
+from .models import JobPosting, SavedCandidateSearch
 from applications.models import Application
 from profiles.models import JobSeekerProfile
 from django.contrib.auth.decorators import login_required
@@ -214,6 +214,16 @@ def recruiter_dashboard(request):
     my_jobs = JobPosting.objects.filter(
         recruiter=request.user
     )
+    saved_searches = SavedCandidateSearch.objects.filter(
+        recruiter=request.user
+    )
+
+    new_candidate_matches = 0
+
+    for saved_search in saved_searches:
+        new_candidate_matches += get_new_match_count(
+            saved_search
+        )
 
     # Applications submitted to this recruiter's jobs
     applications = Application.objects.filter(
@@ -229,9 +239,9 @@ def recruiter_dashboard(request):
         'active_jobs': my_jobs.filter(is_active=True).count(),
         'inactive_jobs': my_jobs.filter(is_active=False).count(),
         'recent_jobs': my_jobs.order_by('-id')[:5],
-
         # Show recruiter their applicants
         'applications': applications,
+        'new_candidate_matches': new_candidate_matches,
     }
 
     return render(
@@ -240,6 +250,56 @@ def recruiter_dashboard(request):
         context
     )
 
+def get_matching_candidates(skills='', location='', projects=''):
+    # Start with all visible and active job seekers
+    candidates = JobSeekerProfile.objects.filter(
+        is_discoverable=True,
+        user__is_active=True
+    ).select_related(
+        'user',
+        'personal_address'
+    )
+
+    # Apply the same filters used by candidate search
+    if skills:
+        candidates = candidates.filter(
+            skills__icontains=skills
+        )
+
+    if location:
+        candidates = candidates.exclude(
+            location_visibility='HIDDEN'
+        ).filter(
+            Q(personal_address__city__icontains=location) |
+            Q(personal_address__state_province__icontains=location)
+        )
+
+    if projects:
+        candidates = candidates.filter(
+            projects__icontains=projects
+        )
+
+    return candidates.order_by('user__username')
+
+
+def get_new_match_count(saved_search):
+    # Run the saved search again
+    current_matches = get_matching_candidates(
+        saved_search.skills,
+        saved_search.location,
+        saved_search.projects
+    )
+
+    # Candidates already seen by this recruiter
+    seen_ids = saved_search.seen_candidates.values_list(
+        'id',
+        flat=True
+    )
+
+    # Anything matching now that was not seen before is new
+    return current_matches.exclude(
+        id__in=seen_ids
+    ).count()
 @login_required
 def search_candidates(request):
     require_recruiter(request.user)
@@ -248,24 +308,18 @@ def search_candidates(request):
     location = request.GET.get('location', '').strip()
     projects = request.GET.get('projects', '').strip()
 
-    candidates = JobSeekerProfile.objects.filter(is_discoverable=True, user__is_active=True).select_related('user', 'personal_address')
-
-    if skills:
-        candidates = candidates.filter(skills__icontains=skills)
-    if location:
-        candidates = candidates.exclude(
-            location_visibility='HIDDEN'
-        ).filter(
-            Q(personal_address__city__icontains=location) |
-            Q(personal_address__state_province__icontains=location)
-        )
-    if projects:
-        candidates = candidates.filter(projects__icontains=projects)
+    # Use the shared candidate-search function
+    candidates = get_matching_candidates(
+        skills,
+        location,
+        projects
+    )
 
     results = []
 
-    for candidate in candidates.order_by('user__username'):
+    for candidate in candidates:
         visible = candidate.visible_to(request.user)
+
         results.append({
             'user_id': candidate.user.id,
             'username': candidate.user.username,
@@ -274,12 +328,141 @@ def search_candidates(request):
             'skills': visible['skills'],
             'projects': visible['projects'],
             'location': visible.get('location'),
+            'is_new': False,
         })
-        
-    
-    return render(request, 'jobs/search_candidates.html', {
-        'candidates': results,
-        'skills': skills,
-        'location': location,
-        'projects': projects,
-    })
+
+    return render(
+        request,
+        'jobs/search_candidates.html',
+        {
+            'candidates': results,
+            'skills': skills,
+            'location': location,
+            'projects': projects,
+        }
+    )
+
+@login_required
+def save_candidate_search(request):
+    require_recruiter(request.user)
+
+    if request.method == 'POST':
+        skills = request.POST.get('skills', '').strip()
+        location = request.POST.get('location', '').strip()
+        projects = request.POST.get('projects', '').strip()
+
+        # Do not save a completely empty search
+        if not skills and not location and not projects:
+            messages.error(
+                request,
+                'Add at least one search filter before saving.'
+            )
+
+            return redirect('jobs.search_candidates')
+
+        # Save the search filters
+        saved_search = SavedCandidateSearch.objects.create(
+            recruiter=request.user,
+            skills=skills,
+            location=location,
+            projects=projects
+        )
+
+        # remember everyone who matches rn
+        # these people are not "new" matches later
+        current_matches = get_matching_candidates(
+            skills,
+            location,
+            projects
+        )
+
+        saved_search.seen_candidates.set(
+            current_matches
+        )
+
+        messages.success(
+            request,
+            'Candidate search saved successfully.'
+        )
+
+        return redirect('jobs.saved_searches')
+
+    return redirect('jobs.search_candidates')
+
+@login_required
+def saved_searches(request):
+    require_recruiter(request.user)
+
+    searches = SavedCandidateSearch.objects.filter(
+        recruiter=request.user
+    ).order_by('-created_at')
+
+    # calculate new matches for each saved search
+    for saved_search in searches:
+        saved_search.new_match_count = get_new_match_count(
+            saved_search
+        )
+
+    return render(
+        request,
+        'jobs/saved_searches.html',
+        {
+            'saved_searches': searches
+        }
+    )
+
+@login_required
+def view_saved_search(request, search_id):
+    require_recruiter(request.user)
+
+    saved_search = get_object_or_404(
+        SavedCandidateSearch,
+        id=search_id,
+        recruiter=request.user
+    )
+    candidates = get_matching_candidates(
+        saved_search.skills,
+        saved_search.location,
+        saved_search.projects
+    )
+
+    # find new matching candidates
+    seen_ids = set(
+        saved_search.seen_candidates.values_list(
+            'id',
+            flat=True
+        )
+    )
+
+    results = []
+
+    for candidate in candidates:
+        visible = candidate.visible_to(request.user)
+
+        results.append({
+            'user_id': candidate.user.id,
+            'username': candidate.user.username,
+            'name': visible['name'],
+            'headline': visible['headline'],
+            'skills': visible['skills'],
+            'projects': visible['projects'],
+            'location': visible.get('location'),
+            'is_new': candidate.id not in seen_ids,
+        })
+
+    # consider the current candidates seen
+    saved_search.seen_candidates.add(
+        *candidates
+    )
+
+    return render(
+        request,
+        'jobs/search_candidates.html',
+        {
+            'candidates': results,
+            'skills': saved_search.skills,
+            'location': saved_search.location,
+            'projects': saved_search.projects,
+            'viewing_saved_search': True,
+        }
+    )

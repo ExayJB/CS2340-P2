@@ -3,6 +3,32 @@
 {% block title %}Recruiter Dashboard | JobApps{% endblock %}
 
 {% block content %}
+{% if new_candidate_matches > 0 %}
+
+    <div class="card">
+
+        <h3>
+            New Candidate Matches
+        </h3>
+
+        <p>
+            You have
+            <strong>{{ new_candidate_matches }}</strong>
+            new candidate
+            match{{ new_candidate_matches|pluralize }}
+            from your saved searches.
+        </p>
+
+        <a
+            href="{% url 'jobs.saved_searches' %}"
+            class="btn btn-primary"
+        >
+            View Saved Searches
+        </a>
+
+    </div>
+
+{% endif %}
 
 <div class="page-heading">
     <h1>Recruiter Dashboard</h1>
