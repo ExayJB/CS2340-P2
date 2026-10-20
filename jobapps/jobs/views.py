@@ -210,16 +210,35 @@ def edit_job(request, id):
 def recruiter_dashboard(request):
     require_recruiter(request.user)
 
-    my_jobs = JobPosting.objects.filter(recruiter=request.user)
+    # Jobs created by this recruiter
+    my_jobs = JobPosting.objects.filter(
+        recruiter=request.user
+    )
+
+    # Applications submitted to this recruiter's jobs
+    applications = Application.objects.filter(
+        job__recruiter=request.user
+    ).select_related(
+        'job',
+        'profile',
+        'profile__user'
+    ).order_by('-date')
 
     context = {
         'total_jobs': my_jobs.count(),
         'active_jobs': my_jobs.filter(is_active=True).count(),
         'inactive_jobs': my_jobs.filter(is_active=False).count(),
         'recent_jobs': my_jobs.order_by('-id')[:5],
+
+        # Show recruiter their applicants
+        'applications': applications,
     }
 
-    return render(request, 'jobs/recruiter_dashboard.html', context)
+    return render(
+        request,
+        'jobs/recruiter_dashboard.html',
+        context
+    )
 
 @login_required
 def search_candidates(request):
@@ -247,8 +266,8 @@ def search_candidates(request):
 
     for candidate in candidates.order_by('user__username'):
         visible = candidate.visible_to(request.user)
-
         results.append({
+            'user_id': candidate.user.id,
             'username': candidate.user.username,
             'name': visible['name'],
             'headline': visible['headline'],
@@ -256,6 +275,7 @@ def search_candidates(request):
             'projects': visible['projects'],
             'location': visible.get('location'),
         })
+        
     
     return render(request, 'jobs/search_candidates.html', {
         'candidates': results,

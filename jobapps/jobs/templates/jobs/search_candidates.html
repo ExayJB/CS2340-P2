@@ -104,6 +104,12 @@
            href="{% url 'profiles:public' username=candidate.username %}">
             View Profile
         </a>
+        <a
+    href="{% url 'applications:send_message' candidate.user_id %}"
+    class="btn btn-primary"
+>
+    Message Candidate
+</a>
 
     </article>
 

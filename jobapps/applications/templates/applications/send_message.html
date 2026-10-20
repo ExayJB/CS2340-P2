@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h2>Message Candidate</h2>
+
+    <p>
+        Sending message to:
+        <strong>{{ recipient.username }}</strong>
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Subject</label>
+            <input
+                type="text"
+                name="subject"
+                class="form-control"
+                required
+            >
+        </div>
+
+        <div class="mb-3">
+            <label>Message</label>
+            <textarea
+                name="message"
+                class="form-control"
+                rows="5"
+                required
+            ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Send Message
+        </button>
+    </form>
+</div>
+
+{% endblock %}
