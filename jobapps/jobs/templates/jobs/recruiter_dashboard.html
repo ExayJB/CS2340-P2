@@ -97,5 +97,54 @@
     </div>
     {% endfor %}
 </div>
+<hr class="my-4">
+
+<h2>Recent Applicants</h2>
+
+{% if applications %}
+
+    {% for application in applications %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <h5>
+                    {{ application.profile.user.username }}
+                </h5>
+
+                <p>
+                    <strong>Applied for:</strong>
+                    {{ application.job.title }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ application.get_status_display }}
+                </p>
+
+                {% if application.note %}
+                    <p>
+                        <strong>Note:</strong>
+                        {{ application.note }}
+                    </p>
+                {% endif %}
+
+                <a
+                    href="{% url 'applications:send_message' application.profile.user.id %}"
+                    class="btn btn-primary"
+                >
+                    Message Candidate
+                </a>
+
+            </div>
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>No applications have been submitted to your jobs yet.</p>
+
+{% endif %}
 
 {% endblock %}

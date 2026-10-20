@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from jobs.models import JobPosting
 from profiles.models import JobSeekerProfile
 from .models import Application, RecruiterMessage
+from django.conf import settings
 
 User = get_user_model()
 
@@ -66,3 +67,4 @@ def sent_messages(request):
         'applications/sent_messages.html',
         {'messages': messages}
     )
+
