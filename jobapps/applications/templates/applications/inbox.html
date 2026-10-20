@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Messages</h2>
+
+    <p>
+        <a
+            href="{% url 'applications:sent_messages' %}"
+            class="btn btn-primary"
+        >
+            Sent Messages
+        </a>
+    </p>
+
+    {% for message in messages %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <h5>{{ message.subject }}</h5>
+
+                <p>
+                    <strong>From:</strong>
+                    {{ message.sender.username }}
+                </p>
+
+                <p>{{ message.message }}</p>
+
+                <p>
+                    <small>{{ message.time_sent }}</small>
+                </p>
+
+                <a
+                    href="{% url 'applications:send_message' message.sender.id %}"
+                    class="btn btn-primary"
+                >
+                    Reply
+                </a>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>No messages yet.</p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

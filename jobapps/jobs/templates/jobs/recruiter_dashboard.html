@@ -3,6 +3,32 @@
 {% block title %}Recruiter Dashboard | JobApps{% endblock %}
 
 {% block content %}
+{% if new_candidate_matches > 0 %}
+
+    <div class="card">
+
+        <h3>
+            New Candidate Matches
+        </h3>
+
+        <p>
+            You have
+            <strong>{{ new_candidate_matches }}</strong>
+            new candidate
+            match{{ new_candidate_matches|pluralize }}
+            from your saved searches.
+        </p>
+
+        <a
+            href="{% url 'jobs.saved_searches' %}"
+            class="btn btn-primary"
+        >
+            View Saved Searches
+        </a>
+
+    </div>
+
+{% endif %}
 
 <div class="page-heading">
     <h1>Recruiter Dashboard</h1>
@@ -97,5 +123,54 @@
     </div>
     {% endfor %}
 </div>
+<hr class="my-4">
+
+<h2>Recent Applicants</h2>
+
+{% if applications %}
+
+    {% for application in applications %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <h5>
+                    {{ application.profile.user.username }}
+                </h5>
+
+                <p>
+                    <strong>Applied for:</strong>
+                    {{ application.job.title }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ application.get_status_display }}
+                </p>
+
+                {% if application.note %}
+                    <p>
+                        <strong>Note:</strong>
+                        {{ application.note }}
+                    </p>
+                {% endif %}
+
+                <a
+                    href="{% url 'applications:send_message' application.profile.user.id %}"
+                    class="btn btn-primary"
+                >
+                    Message Candidate
+                </a>
+
+            </div>
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>No applications have been submitted to your jobs yet.</p>
+
+{% endif %}
 
 {% endblock %}
