@@ -1,5 +1,25 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+
+<style>
+    #office-map {
+        height: 400px;
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        cursor: crosshair;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <div class="container mt-4">
@@ -29,6 +49,12 @@
                 {% endif %}
 
                 {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% else %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}"
                                class="form-label">
@@ -49,7 +75,32 @@
                             </div>
                         {% endfor %}
                     </div>
+                    {% endif %}
                 {% endfor %}
+
+                
+                                <div class="mb-3">
+                    <h3>Office Location</h3>
+
+                    <p class="muted">
+                        Click on the map to pin the exact office location
+                        for this job posting.
+                    </p>
+
+                    <div id="office-map"></div>
+
+                    <p id="location-status" class="muted"
+                       aria-live="polite">
+                        No office location selected yet.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="clear-location"
+                        class="btn btn-secondary">
+                        Clear Location
+                    </button>
+                </div>
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
@@ -68,5 +119,87 @@
     </div>
 
 </div>
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+</script>
+
+<script>
+    const latInput = document.getElementById("id_latitude");
+    const lngInput = document.getElementById("id_longitude");
+    const status = document.getElementById("location-status");
+
+    const map = L.map("office-map").setView(
+        [33.749, -84.388], 11
+    );
+
+    L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">' +
+                'OpenStreetMap</a> contributors'
+        }
+    ).addTo(map);
+
+    let officeMarker = null;
+
+    function setOfficeLocation(lat, lng) {
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+
+        if (officeMarker) {
+            officeMarker.setLatLng([lat, lng]);
+        } else {
+            officeMarker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(map);
+
+            officeMarker.on("dragend", function () {
+                const position = officeMarker.getLatLng();
+                setOfficeLocation(position.lat, position.lng);
+            });
+        }
+
+        status.textContent =
+            "Office location selected: " +
+            lat.toFixed(6) + ", " +
+            lng.toFixed(6);
+    }
+
+    map.on("click", function (event) {
+        setOfficeLocation(
+            event.latlng.lat,
+            event.latlng.lng
+        );
+    });
+
+    if (latInput.value && lngInput.value) {
+        const savedLat = parseFloat(latInput.value);
+        const savedLng = parseFloat(lngInput.value);
+
+        if (Number.isFinite(savedLat) &&
+            Number.isFinite(savedLng)) {
+            setOfficeLocation(savedLat, savedLng);
+            map.setView([savedLat, savedLng], 14);
+        }
+    }
+
+    document.getElementById("clear-location")
+        .addEventListener("click", function () {
+            latInput.value = "";
+            lngInput.value = "";
+
+            if (officeMarker) {
+                map.removeLayer(officeMarker);
+                officeMarker = null;
+            }
+
+            status.textContent =
+                "No office location selected yet.";
+        });
+</script>
 
 {% endblock %}

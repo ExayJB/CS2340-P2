@@ -4,11 +4,25 @@ from .models import JobPosting
 class JobPostingForm(forms.ModelForm):
     class Meta:
         model = JobPosting
-        fields = ['title', 'company', 'location', 'description', 'required_skills', 'salary_min', 'salary_max', 'work_mode', 'is_active']
+        fields = [
+            'title',
+            'company',
+            'location',
+            'description',
+            'required_skills',
+            'salary_min',
+            'salary_max',
+            'work_mode',
+            'is_active',
+            'latitude',
+            'longitude',
+        ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 5}),
             'required_skills': forms.Textarea(attrs={'rows': 2}),
-        }
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+            }
 
     def clean(self):
         cleaned_data = super().clean()
