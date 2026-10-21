@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="page-heading">
-    <h1>Applicant pipeline{% if job %} — {{ job.title }}{% endif %}</h1>
+    <h1>Quest Pipeline <small>· Applicant pipeline{% if job %} — {{ job.title }}{% endif %}</small></h1>
     <p class="muted">
         Changing a stage here updates what the applicant sees on their tracking page.
     </p>
@@ -21,8 +21,14 @@
     {% for column in columns %}
     <section class="pipeline-column" data-status="{{ column.status }}">
         <header class="pipeline-column-head">
-            <h3>{{ column.label }}</h3>
-            <span class="pipeline-count">{{ column.cards|length }}</span>
+            <h3><span class="pipeline-stage-symbol" aria-hidden="true">
+                {% if column.status == 'APPLIED' %}✦
+                {% elif column.status == 'REVIEW' %}◈
+                {% elif column.status == 'INTERVIEW' %}⚡
+                {% elif column.status == 'OFFER' %}★
+                {% else %}◆{% endif %}</span>
+                {{ column.label }}</h3>
+            <span class="pipeline-count" title="Applicants in stage">{{ column.cards|length }}</span>
         </header>
 
         <div class="pipeline-dropzone">

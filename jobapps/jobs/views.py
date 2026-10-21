@@ -69,6 +69,7 @@ def map_view(request):
             'title': job.title,
             'company': job.company,
             'location': job.location,
+            'work_mode': job.work_mode,
             'latitude': float(job.latitude),
             'longitude': float(job.longitude),
             'url': reverse('jobs.show', kwargs={'id': job.id}),
