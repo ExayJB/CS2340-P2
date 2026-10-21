@@ -23,12 +23,11 @@ def login(request):
             return render(request, 'accounts/login.html', {'template_data': template_data})
         else:
             auth_login(request, user)
+
             if user.base_role == 'ADMIN':
                 return redirect('administration:dashboard')
-            elif user.base_role == 'RECRUITER':
-                return redirect('jobs.recruiter_dashboard')
-            else:
-                return redirect('profiles:dashboard')
+
+            return redirect('accounts.welcome')
         
 
 def signup(request):
@@ -52,7 +51,20 @@ def signup(request):
             elif chosen_role == 'RECRUITER':
                 RecruiterProfile.objects.create(user=user)
 
-            return redirect('accounts.login')
+            auth_login(request, user)
+            return redirect('accounts.welcome')
+        
         else:
             template_data['form'] = form
             return render(request, 'accounts/signup.html', {'template_data': template_data})
+
+@login_required
+def welcome(request):
+    template_data = {
+        'title': 'Welcome to JobGO'
+    }
+    return render(
+        request,
+        'accounts/welcome.html',
+        {'template_data': template_data}
+    )

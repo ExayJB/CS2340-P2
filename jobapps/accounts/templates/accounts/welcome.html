@@ -1,0 +1,119 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome | JobGO{% endblock %}
+
+{% block content %}
+
+<style>
+    .welcome-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #e0f4df;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+
+        animation: fadeOut 0.5s ease-in 2.5s forwards;
+    }
+
+    .welcome-title {
+        font-family: 'Press Start 2P', cursive;
+        font-size: clamp(18px, 4vw, 32px);
+        color: #24385b;
+        line-height: 1.8;
+
+        animation: popIn 0.5s ease-out;
+    }
+
+    .welcome-subtitle {
+        font-size: 18px;
+        color: #526780;
+        margin-top: 20px;
+    }
+
+    .welcome-pokeball {
+        width: 65px;
+        height: 65px;
+        margin-top: 35px;
+        animation: bounce 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes popIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-18px); }
+    }
+
+    @keyframes fadeOut {
+        to { opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .welcome-overlay,
+        .welcome-title,
+        .welcome-pokeball {
+            animation: none;
+        }
+    }
+</style>
+
+<div class="welcome-overlay">
+
+    <h1 class="welcome-title">
+        Welcome, {{ user.username }}!
+    </h1>
+
+    <p class="welcome-subtitle">
+        Your adventure is about to begin...
+    </p>
+
+    <svg class="welcome-pokeball"
+         viewBox="0 0 100 100"
+         aria-label="Loading">
+
+        <circle cx="50" cy="50" r="46"
+                fill="white" stroke="#24385b"
+                stroke-width="7"/>
+
+        <path d="M4 50 A46 46 0 0 1 96 50 Z"
+              fill="#e85a5a"/>
+
+        <path d="M4 50 H96"
+              stroke="#24385b" stroke-width="8"/>
+
+        <circle cx="50" cy="50" r="16"
+                fill="white" stroke="#24385b"
+                stroke-width="7"/>
+    </svg>
+
+</div>
+
+{% if user.base_role == 'RECRUITER' %}
+    {% url 'jobs.recruiter_dashboard' as destination %}
+{% else %}
+    {% url 'profiles:dashboard' as destination %}
+{% endif %}
+
+<script>
+    setTimeout(function () {
+        window.location.replace("{{ destination|escapejs }}");
+    }, 3000);
+</script>
+
+{% endblock %}
