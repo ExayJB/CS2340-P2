@@ -21,15 +21,19 @@
 
         <p>
             {% if job.is_active %}
-                Active
+            Active
             {% else %}
-                Inactive
+            Inactive
             {% endif %}
         </p>
 
         <div class="actions">
             <a class="btn btn-secondary" href="{% url 'jobs.edit_job' id=job.id %}">
                 Edit Job
+            </a>
+
+            <a class="btn btn-secondary" href="{% url 'jobs.job_pipeline' id=job.id %}">
+                Pipeline
             </a>
 
             <a class="btn btn-primary" href="{% url 'jobs.show' id=job.id %}">

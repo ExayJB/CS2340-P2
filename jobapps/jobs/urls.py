@@ -17,4 +17,9 @@ urlpatterns = [
     path('recruiter/saved-searches/<int:search_id>/', views.view_saved_search, name='jobs.view_saved_search'),
     path('recruiter/candidates/', views.candidate_recommendations, name='jobs.candidate_recommendations'),
     path('recruiter/<int:id>/candidates/', views.candidate_recommendations, name='jobs.job_candidate_recommendations'),
+    path('recruiter/pipeline/', views.pipeline, name='jobs.pipeline'),
+    path('recruiter/<int:id>/pipeline/', views.pipeline, name='jobs.pipeline'),
+    path('recruiter/applications/<int:id>/status/', views.update_application_status, name='jobs.update_application_status'),
+
+
 ]
