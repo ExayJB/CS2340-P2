@@ -9,7 +9,13 @@
     <p class="text-muted">
         Enter the job details below to create or update your posting.
     </p>
-
+    {% if job %}
+    <p>
+        <a href="{% url 'jobs.job_candidate_recommendations' id=job.id %}">
+            See matching candidates for this posting
+        </a>
+    </p>
+    {% endif %}
     <div class="card shadow-sm">
         <div class="card-body">
 

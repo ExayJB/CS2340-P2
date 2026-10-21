@@ -204,6 +204,7 @@ def edit_job(request, id):
     return render(request, 'jobs/job_form.html', {
         'form': form,
         'page_title': 'Edit Job Posting',
+        'job': job,
     })
 
 @login_required
@@ -466,3 +467,49 @@ def view_saved_search(request, search_id):
             'viewing_saved_search': True,
         }
     )
+
+@login_required
+def candidate_recommendations(request, id=None):
+    require_recruiter(request.user)
+
+    postings = JobPosting.objects.filter(recruiter=request.user, is_active=True)
+    if id is not None:
+        postings = postings.filter(id=id)
+    postings = postings.order_by('title')
+
+    candidates = get_matching_candidates()
+
+    results = []
+    for job in postings:
+        job_skills = {skill.lower() for skill in job.required_skills_list}
+        if not job_skills:
+            continue
+
+        already_applied = set(job.applications.values_list('profile_id', flat=True))
+
+        matches = []
+        for candidate in candidates:
+            if candidate.id in already_applied:
+                continue
+            candidate_skills = {skill.lower() for skill in candidate.skills_list}
+            matching_skills = job_skills & candidate_skills
+            if not matching_skills:
+                continue
+
+            visible = candidate.visible_to(request.user)
+            matches.append({
+                'username': candidate.user.username,
+                'name': visible['name'],
+                'headline': visible['headline'],
+                'location': visible.get('location'),
+                'matching_skills': sorted(matching_skills),
+                'match_percentage': round(len(matching_skills) / len(job_skills) * 100),
+            })
+
+        matches.sort(key=lambda match: match['match_percentage'], reverse=True)
+        if matches:
+            results.append({'job': job, 'matches': matches[:10]})
+    return render(request, 'jobs/candidate_recommendations.html', {
+        'results': results,
+        'single_job': postings.first() if id is not None else None,
+    })

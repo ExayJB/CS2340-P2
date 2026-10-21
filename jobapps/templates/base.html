@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block extra_head %}{% endblock %}
@@ -21,66 +19,69 @@
 
 <body>
 
-<header class="site-header">
-    <a class="brand" href="{% url 'jobs.index' %}">
-        JobApps
-    </a>
-
-    <nav class="nav-links">
-
-        <a href="{% url 'jobs.index' %}">
-            Jobs
+    <header class="site-header">
+        <a class="brand" href="{% url 'jobs.index' %}">
+            JobApps
         </a>
 
-        {% if user.is_authenticated %}
+        <nav class="nav-links">
+
+            <a href="{% url 'jobs.index' %}">
+                Jobs
+            </a>
+
+            {% if user.is_authenticated %}
             {% if user.base_role == 'RECRUITER' %}
 
-                <a href="{% url 'jobs.recruiter_dashboard' %}">
-                    Dashboard
-                </a>
+            <a href="{% url 'jobs.recruiter_dashboard' %}">
+                Dashboard
+            </a>
 
-                <a href="{% url 'jobs.recruiter_jobs' %}">
-                    Manage Jobs
-                </a>
+            <a href="{% url 'jobs.recruiter_jobs' %}">
+                Manage Jobs
+            </a>
 
-                <a href="{% url 'jobs.create_job' %}">
-                    Post a Job
-                </a>
+            <a href="{% url 'jobs.create_job' %}">
+                Post a Job
+            </a>
 
-                <a href="{% url 'applications:inbox' %}">
-                    Messages
-                </a>
-                <a href="{% url 'jobs.saved_searches' %}">
-                    Saved Searches
-                </a>
-            
+            <a href="{% url 'applications:inbox' %}">
+                Messages
+            </a>
+            <a href="{% url 'jobs.saved_searches' %}">
+                Saved Searches
+            </a>
+            <a href="{% url 'jobs.candidate_recommendations' %}">
+                Recommended candidates
+            </a>
+
             {% elif user.base_role == 'SEEKER' %}
 
-                <a href="{% url 'jobs.recommendations' %}">
-                    Recommended
-                </a>
+            <a href="{% url 'jobs.recommendations' %}">
+                Recommended
+            </a>
 
-                <a href="{% url 'cart.index' %}">
-                    Saved
-                </a>
+            <a href="{% url 'cart.index' %}">
+                Saved
+            </a>
 
-                <a href="{% url 'jobs.applications' %}">
-                    Applications
-                </a>
+            <a href="{% url 'jobs.applications' %}">
+                Applications
+            </a>
 
-                <a href="{% url 'applications:inbox' %}">
-                    Messages
-                </a>
+            <a href="{% url 'applications:inbox' %}">
+                Messages
+            </a>
 
-                <a href="{% url 'profiles:dashboard' %}">
-                    Profile
-                </a>
+            <a href="{% url 'profiles:dashboard' %}">
+                Profile
+            </a>
 
             {% elif user.base_role == 'ADMIN' %}
 
-                <a href="{% url 'administration:dashboard' %}">
-                    Dashboard
-                </a>
+            <a href="{% url 'administration:dashboard' %}">
+                Dashboard
+            </a>
 
             {% endif %}
 
@@ -88,48 +89,46 @@
                 Log out
             </a>
 
-        {% else %}
+            {% else %}
 
             <a href="{% url 'accounts.login' %}">
                 Log in
             </a>
 
-            <a
-                class="btn btn-primary btn-small"
-                href="{% url 'accounts.signup' %}"
-            >
+            <a class="btn btn-primary btn-small" href="{% url 'accounts.signup' %}">
                 Sign up
             </a>
 
-        {% endif %}
+            {% endif %}
 
-    </nav>
-</header>
+        </nav>
+    </header>
 
 
-<main class="page-shell">
+    <main class="page-shell">
 
-    {% if messages %}
+        {% if messages %}
         <div class="messages">
 
             {% for message in messages %}
-                <div class="alert">
-                    {{ message }}
-                </div>
+            <div class="alert">
+                {{ message }}
+            </div>
             {% endfor %}
 
         </div>
-    {% endif %}
+        {% endif %}
 
-    {% block content %}
-    {% endblock %}
+        {% block content %}
+        {% endblock %}
 
-</main>
+    </main>
 
 
-<footer class="site-footer">
-    CS 2340 Job Application Platform
-</footer>
+    <footer class="site-footer">
+        CS 2340 Job Application Platform
+    </footer>
 
 </body>
+
 </html>
