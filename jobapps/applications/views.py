@@ -3,10 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from jobs.models import JobPosting
 from profiles.models import JobSeekerProfile
+from django.http import Http404
+from django.shortcuts import render
+from django.urls import reverse
 from .models import Application, RecruiterMessage
 from django.conf import settings
 
 User = get_user_model()
+
 
 @login_required
 def apply(request, id):
@@ -24,6 +28,21 @@ def apply(request, id):
     return redirect('/jobs/')
 
 @login_required
+def review(request, id):
+    application = get_object_or_404(Application, id=id)
+
+    if application.job.recruiter_id != request.user.id:
+        raise Http404("No such application")
+
+    profile = application.profile
+    template_data = {
+        'title': f"{profile.user.username} · {application.job.title}",
+        'application': application,
+        'job': application.job,
+        'fields': profile.visible_to(request.user),
+        'profile_url': reverse('profiles:public', kwargs={'username': profile.user.username}),
+    }
+    return render(request, 'applications/application_detail.html', {'template_data': template_data})
 def send_message(request, user_id):
     recipient = get_object_or_404(User, id=user_id)
 

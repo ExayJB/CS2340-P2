@@ -20,13 +20,15 @@ class Application(models.Model):
     # The job the student applied to
     job = models.ForeignKey(
         JobPosting,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='applications'
     )
 
     # The job seeker's profile
     profile = models.ForeignKey(
         JobSeekerProfile,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='applications'
     )
 
     # Optional personalized note submitted with the application

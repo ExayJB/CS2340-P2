@@ -5,7 +5,7 @@ app_name = 'applications'
 
 urlpatterns = [
     path('<int:id>/apply/', views.apply, name='apply'),
-
+    path('review/<int:id>/', views.review, name='review'),
     path(
         'messages/send/<int:user_id>/',
         views.send_message,

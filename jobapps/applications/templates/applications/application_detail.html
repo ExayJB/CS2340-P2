@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ template_data.title }} | JobApps{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>{{ template_data.fields.name }}</h1>
+    <p class="muted">
+        Applied to {{ template_data.job.title }} ·
+        {{ template_data.application.get_status_display }} ·
+        {{ template_data.application.date|date:"M j, Y" }}
+    </p>
+</div>
+
+{% if template_data.application.note %}
+<article class="card">
+    <h3>Message from the applicant</h3>
+    <p>{{ template_data.application.note|linebreaks }}</p>
+</article>
+{% endif %}
+
+<article class="card">
+    <h3>Profile</h3>
+    <p>{{ template_data.fields.headline }}</p>
+
+    {% if template_data.fields.personal_email %}
+    <p>Email: {{ template_data.fields.personal_email }}</p>
+    {% endif %}
+    {% if template_data.fields.phone_number %}
+    <p>Phone: {{ template_data.fields.phone_number }}</p>
+    {% endif %}
+    {% if template_data.fields.location %}
+    <address style="font-style: normal;">
+        {% for line in template_data.fields.location.lines %}{{ line }}<br>{% endfor %}
+    </address>
+    {% endif %}
+
+    <h4>Skills</h4>
+    <p>{% for skill in template_data.fields.skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+
+    {% if template_data.fields.experiences %}
+    <h4>Work experience</h4>
+    {% for exp in template_data.fields.experiences %}
+    <div>{{ exp.title }} — {{ exp.company }}</div>
+    {% endfor %}
+    {% endif %}
+
+    {% if template_data.fields.education %}
+    <h4>Education</h4>
+    {% for edu in template_data.fields.education %}
+    <div>{{ edu.degree }} in {{ edu.field_of_study }} — {{ edu.institution }}</div>
+    {% endfor %}
+    {% endif %}
+
+    {% if template_data.fields.links %}
+    <h4>Links</h4>
+    {% for link in template_data.fields.links %}
+    <a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.label }}</a><br>
+    {% endfor %}
+    {% endif %}
+
+    <p><a href="{{ template_data.profile_url }}">View full public profile</a></p>
+</article>
+{% endblock %}

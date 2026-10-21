@@ -38,9 +38,7 @@ class JobSeekerProfile(models.Model):
         return [skill.strip() for skill in self.skills.split(',') if skill.strip()]
 
     def _has_application_to(self, recruiter):
-        ## Uncomment the following line when application model is coded
-        ##return self.applications.filter(posting__recruiter=recruiter).exists()
-        return False
+        return self.applications.filter(job__recruiter=recruiter.user).exists()
 
     def _relation_to(self, viewer):
         if not viewer or not viewer.is_authenticated:
@@ -59,6 +57,8 @@ class JobSeekerProfile(models.Model):
             return None
         
         addr = self.personal_address
+        if addr is None or self.location_visibility == LocationVisibility.HIDDEN:
+            return None
         if self.location_visibility == LocationVisibility.EXACT and rel in ('SELF', 'APPLIED'):
             lines = [addr.address_line_1]
             if addr.address_line_2:
