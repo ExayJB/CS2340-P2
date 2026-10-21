@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Candidate Recommendations | JobApps{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Recommended candidates</h1>
+    <p class="muted">Matched against the skills your postings require.</p>
+</div>
+
+{% for result in results %}
+<h2>{{ result.job.title }}</h2>
+<p class="muted">Requires: {{ result.job.required_skills }}</p>
+
+<div class="grid">
+    {% for match in result.matches %}
+    <article class="card">
+        <h3>{{ match.name }}</h3>
+        <div class="meta">
+            <span>{{ match.headline }}</span>
+            {% if match.location %}<span>{{ match.location.lines.0 }}</span>{% endif %}
+        </div>
+        <p><strong>{{ match.match_percentage }}% skill match</strong></p>
+        <p class="muted">
+            Matches:
+            {% for skill in match.matching_skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </p>
+        <a class="btn btn-primary"
+           href="{% url 'profiles:public' username=match.username %}">View profile</a>
+    </article>
+    {% endfor %}
+</div>
+{% empty %}
+<div class="card empty">
+    No candidates match your postings yet — check that your postings list required skills.
+</div>
+{% endfor %}
+{% endblock %}
