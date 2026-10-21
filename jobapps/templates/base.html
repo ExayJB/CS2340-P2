@@ -56,7 +56,7 @@
         {% if user.is_authenticated and user.base_role == 'SEEKER' and user.job_seeker_profile %}
             <span class="hud-player" aria-label="Your character">
                 {% with avatar=user.job_seeker_profile.avatar_choice %}
-                <img src="/static/jobgo/avatars/{{ avatar }}.svg" alt="" width="32" height="32">
+                <img src="/static/jobgo/avatars/{{ avatar }}.png" alt="" width="32" height="32">
                 {% endwith %}
             </span>
         {% endif %}
