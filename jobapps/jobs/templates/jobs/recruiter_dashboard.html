@@ -148,8 +148,8 @@
         </p>
         {% endif %}
 
-        <a href="{% url 'applications:send_message' application.profile.user.id %}" class="btn btn-primary">
-            Message Candidate
+        <a href="{% url 'applications:email_candidate' application.profile.user.id %}" class="btn btn-primary">
+            Email Candidate
         </a>
 
     </div>

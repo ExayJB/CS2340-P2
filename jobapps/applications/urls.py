@@ -11,6 +11,11 @@ urlpatterns = [
         views.send_message,
         name='send_message'
     ),
+    path(
+        'email-candidate/<int:user_id>/',
+        views.email_candidate,
+        name='email_candidate'
+    ),
 
     path(
         'messages/inbox/',

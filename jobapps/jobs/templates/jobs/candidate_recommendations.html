@@ -26,6 +26,8 @@
         </p>
         <a class="btn btn-primary"
            href="{% url 'profiles:public' username=match.username %}">View profile</a>
+        <a class="btn btn-secondary"
+           href="{% url 'applications:email_candidate' match.user_id %}">Email candidate</a>
     </article>
     {% endfor %}
 </div>

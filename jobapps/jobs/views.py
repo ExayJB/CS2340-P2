@@ -557,6 +557,7 @@ def candidate_recommendations(request, id=None):
 
             visible = candidate.visible_to(request.user)
             matches.append({
+                'user_id': candidate.user.id,
                 'username': candidate.user.username,
                 'name': visible['name'],
                 'headline': visible['headline'],
