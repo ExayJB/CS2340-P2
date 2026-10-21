@@ -43,9 +43,25 @@ class JobSeekerProfileForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = UserAddress
-        fields = ['address_line_1', 'address_line_2', 'city', 'state_province', 'postal_code', 'country']
-        widgets = {f: forms.TextInput(attrs={'class': 'form-control'})
-                   for f in fields}
+        fields = [
+            'address_line_1',
+            'address_line_2',
+            'city',
+            'state_province',
+            'postal_code',
+            'country',
+            'latitude',
+            'longitude',
+        ]
+        widgets = {
+            field: forms.TextInput(attrs={'class': 'form-control'})
+            for field in fields
+            if field not in ('latitude', 'longitude')
+        }
+        widgets.update({
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+        })
         labels = {'country': 'Country (2 letter code)'}
 
 class DateInput(forms.DateInput):

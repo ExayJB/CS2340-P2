@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='jobs.index'),
     path('map/', views.map_view, name='jobs.map'),
+    path('recruiter/applicant-map/', views.applicant_map, name='jobs.applicant_map'),
     path('<int:id>/', views.show, name='jobs.show'),
     path('applications/', views.applications, name='jobs.applications'),
     path('recommendations/', views.recommendations, name='jobs.recommendations'),

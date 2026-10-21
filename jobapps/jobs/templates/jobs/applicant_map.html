@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Applicant Locations | JobGO
+{% endblock %}
+
+{% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+<style>
+    #applicant-map {
+        height: 560px;
+        width: 100%;
+        border-radius: 12px;
+    }
+
+    .applicant-count-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid white;
+        border-radius: 50%;
+        background: #2563eb;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
+        color: white;
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Applicant Locations</h1>
+    <p class="muted">
+        Each marker summarizes applicants who chose to share a location.
+        Individual pins and applicant names are not shown; groups smaller than
+        three are hidden.
+    </p>
+    <p id="applicant-map-status" class="muted" aria-live="polite"></p>
+</div>
+
+<div class="card">
+    <div id="applicant-map" aria-label="Map of applicant counts by city"></div>
+</div>
+
+{{ locations|json_script:"applicant-location-data" }}
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+<script>
+    const locations = JSON.parse(
+        document.getElementById("applicant-location-data").textContent
+    );
+    const status = document.getElementById("applicant-map-status");
+    const map = L.map("applicant-map").setView([39.5, -98.35], 4);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">' +
+            'OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const markers = [];
+
+    for (const location of locations) {
+        const size = Math.min(58, 30 + location.count * 2);
+        const icon = L.divIcon({
+            className: "",
+            html: `<span class="applicant-count-marker" style="width:${size}px;height:${size}px">${location.count}</span>`,
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size / 2]
+        });
+
+        const marker = L.marker(
+            [location.latitude, location.longitude],
+            { icon: icon }
+        ).addTo(map);
+
+        const popup = document.createElement("div");
+        popup.textContent =
+            location.count + " applicants near " +
+            location.city + ", " + location.state;
+        marker.bindPopup(popup);
+        markers.push(marker);
+    }
+
+    if (markers.length) {
+        map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+        status.textContent = "Showing " + markers.length + " city groups.";
+    } else {
+        status.textContent =
+            "No location groups to display yet. Applicants need to save a map pin, " +
+            "and at least three applicants must share a city group.";
+    }
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import JobPosting, SavedCandidateSearch
 from applications.models import Application
-from profiles.models import JobSeekerProfile
+from profiles.models import JobSeekerProfile, LocationVisibility
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -85,6 +85,62 @@ def map_view(request):
         'jobs/map.html',
         {'template_data': template_data}
     )
+
+@login_required
+def applicant_map(request):
+    require_recruiter(request.user)
+
+    applicants = JobSeekerProfile.objects.filter(
+        applications__job__recruiter=request.user,
+        personal_address__latitude__isnull=False,
+        personal_address__longitude__isnull=False,
+    ).exclude(
+        location_visibility=LocationVisibility.HIDDEN
+    ).select_related(
+        'personal_address'
+    ).distinct()
+
+    groups = {}
+
+    for applicant in applicants:
+        address = applicant.personal_address
+        city = address.city.strip()
+        state = address.state_province.strip()
+
+        if not city or not state:
+            continue
+
+        key = (city, state)
+        if key not in groups:
+            groups[key] = {
+                'city': city,
+                'state': state,
+                'count': 0,
+                'latitude_total': 0,
+                'longitude_total': 0,
+            }
+
+        groups[key]['count'] += 1
+        groups[key]['latitude_total'] += float(address.latitude)
+        groups[key]['longitude_total'] += float(address.longitude)
+
+    locations = []
+    for group in groups.values():
+        # Hide small groups and only send a coarse city-level point to the browser.
+        if group['count'] < 3:
+            continue
+
+        locations.append({
+            'city': group['city'],
+            'state': group['state'],
+            'count': group['count'],
+            'latitude': round(group['latitude_total'] / group['count'], 2),
+            'longitude': round(group['longitude_total'] / group['count'], 2),
+        })
+
+    return render(request, 'jobs/applicant_map.html', {
+        'locations': locations,
+    })
 
 def show(request, id):
     job = get_object_or_404(JobPosting, id=id)

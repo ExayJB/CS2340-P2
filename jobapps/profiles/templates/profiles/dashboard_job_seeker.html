@@ -1,5 +1,23 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+<style>
+    #profile-location-map {
+        height: 360px;
+        width: 100%;
+        border-radius: 12px;
+        margin: 12px 0;
+        cursor: crosshair;
+    }
+</style>
+{% endblock %}
+
 {% block title %}
 My Profile | JobApps
 {% endblock %}
@@ -109,6 +127,9 @@ My Profile | JobApps
             <h4>Address</h4>
 
             {% for field in template_data.address_form %}
+                {% if field.is_hidden %}
+                    {{ field }}
+                {% else %}
 
                 <div class="form-group">
 
@@ -120,8 +141,25 @@ My Profile | JobApps
                     {{ field.errors }}
 
                 </div>
+                {% endif %}
 
             {% endfor %}
+
+            <p class="muted">
+                Optionally pin your approximate location. Recruiters only see
+                grouped city-level counts, never your individual map pin.
+            </p>
+            <div id="profile-location-map" aria-label="Choose your approximate location on a map"></div>
+            <p id="profile-location-status" class="muted" aria-live="polite">
+                {% if template_data.address_form.instance.latitude and template_data.address_form.instance.longitude %}
+                    A location pin is saved. Click the map to move it.
+                {% else %}
+                    Click the map to add an optional location pin.
+                {% endif %}
+            </p>
+            <button type="button" class="btn btn-secondary btn-small" id="clear-profile-location">
+                Clear location pin
+            </button>
 
         </div>
 
@@ -375,5 +413,81 @@ My Profile | JobApps
     </script>
 
 </form>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+<script>
+    const latitudeInput = document.getElementById("id_latitude");
+    const longitudeInput = document.getElementById("id_longitude");
+    const locationStatus = document.getElementById("profile-location-status");
+    const savedLatitude = parseFloat(latitudeInput.value);
+    const savedLongitude = parseFloat(longitudeInput.value);
+    const hasSavedLocation = Number.isFinite(savedLatitude) &&
+        Number.isFinite(savedLongitude);
+    const initialCenter = hasSavedLocation
+        ? [savedLatitude, savedLongitude]
+        : [39.5, -98.35];
+    const initialZoom = hasSavedLocation ? 12 : 4;
+
+    const profileMap = L.map("profile-location-map").setView(
+        initialCenter,
+        initialZoom
+    );
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">' +
+            'OpenStreetMap</a> contributors'
+    }).addTo(profileMap);
+
+    let profileLocationMarker = null;
+
+    function setProfileLocation(latitude, longitude) {
+        latitudeInput.value = latitude.toFixed(6);
+        longitudeInput.value = longitude.toFixed(6);
+
+        if (profileLocationMarker) {
+            profileLocationMarker.setLatLng([latitude, longitude]);
+        } else {
+            profileLocationMarker = L.marker([latitude, longitude], {
+                draggable: true
+            }).addTo(profileMap);
+
+            profileLocationMarker.on("dragend", function () {
+                const point = profileLocationMarker.getLatLng();
+                setProfileLocation(point.lat, point.lng);
+            });
+        }
+
+        locationStatus.textContent =
+            "Approximate location pin saved. Click or drag to adjust it.";
+    }
+
+    profileMap.on("click", function (event) {
+        setProfileLocation(event.latlng.lat, event.latlng.lng);
+    });
+
+    if (hasSavedLocation) {
+        setProfileLocation(savedLatitude, savedLongitude);
+    }
+
+    document.getElementById("clear-profile-location")
+        .addEventListener("click", function () {
+            latitudeInput.value = "";
+            longitudeInput.value = "";
+
+            if (profileLocationMarker) {
+                profileMap.removeLayer(profileLocationMarker);
+                profileLocationMarker = null;
+            }
+
+            locationStatus.textContent =
+                "No location pin selected. Save Changes to remove the saved pin.";
+        });
+</script>
 
 {% endblock %}
