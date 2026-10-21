@@ -76,7 +76,13 @@ My Profile | JobApps
                 <br>
                 {{ template_data.form.skills }}
             </div>
-
+            <div class="form-group">
+    <label for="{{ template_data.form.projects.id_for_label }}">
+        Projects
+    </label>
+    {{ template_data.form.projects }}
+    {{ template_data.form.projects.errors }}
+</div>
         </div>
 
 

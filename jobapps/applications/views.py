@@ -1,11 +1,16 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from jobs.models import JobPosting
 from profiles.models import JobSeekerProfile
-from .models import Application
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
+from .models import Application, RecruiterMessage
+from django.conf import settings
+
+User = get_user_model()
+
 
 @login_required
 def apply(request, id):
@@ -38,3 +43,47 @@ def review(request, id):
         'profile_url': reverse('profiles:public', kwargs={'username': profile.user.username}),
     }
     return render(request, 'applications/application_detail.html', {'template_data': template_data})
+def send_message(request, user_id):
+    recipient = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        RecruiterMessage.objects.create(
+            sender=request.user,
+            recipient=recipient,
+            subject=request.POST.get('subject'),
+            message=request.POST.get('message')
+        )
+
+        return redirect('applications:inbox')
+
+    return render(
+        request,
+        'applications/send_message.html',
+        {'recipient': recipient}
+    )
+
+
+@login_required
+def inbox(request):
+    messages = RecruiterMessage.objects.filter(
+        recipient=request.user
+    ).order_by('-time_sent')
+
+    return render(
+        request,
+        'applications/inbox.html',
+        {'messages': messages}
+    )
+
+@login_required
+def sent_messages(request):
+    messages = RecruiterMessage.objects.filter(
+        sender=request.user
+    ).order_by('-time_sent')
+
+    return render(
+        request,
+        'applications/sent_messages.html',
+        {'messages': messages}
+    )
+

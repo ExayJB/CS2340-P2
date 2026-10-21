@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Searches | JobApps{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>Saved Candidate Searches</h1>
+
+    <p class="muted">
+        Reuse your searches and see when new candidates match.
+    </p>
+
+</div>
+
+
+{% for saved_search in saved_searches %}
+
+    <section class="card">
+
+        <h2>Saved Search</h2>
+
+
+        {% if saved_search.skills %}
+
+            <p>
+                <strong>Skills:</strong>
+                {{ saved_search.skills }}
+            </p>
+
+        {% endif %}
+
+
+        {% if saved_search.location %}
+
+            <p>
+                <strong>Location:</strong>
+                {{ saved_search.location }}
+            </p>
+
+        {% endif %}
+
+
+        {% if saved_search.projects %}
+
+            <p>
+                <strong>Projects:</strong>
+                {{ saved_search.projects }}
+            </p>
+
+        {% endif %}
+
+
+        {% if saved_search.new_match_count > 0 %}
+
+            <p>
+                <strong>
+                    {{ saved_search.new_match_count }}
+                    new match{{ saved_search.new_match_count|pluralize }}
+                </strong>
+            </p>
+
+        {% else %}
+
+            <p class="muted">
+                No new matches
+            </p>
+
+        {% endif %}
+
+
+        <a
+            href="{% url 'jobs.view_saved_search' saved_search.id %}"
+            class="btn btn-primary"
+        >
+            View Matches
+        </a>
+
+    </section>
+
+{% empty %}
+
+    <section class="card">
+
+        <h3>No saved searches yet</h3>
+
+        <p>
+            Search for candidates and select Save Search.
+        </p>
+
+        <a
+            href="{% url 'jobs.search_candidates' %}"
+            class="btn btn-primary"
+        >
+            Find Candidates
+        </a>
+
+    </section>
+
+{% endfor %}
+
+{% endblock %}

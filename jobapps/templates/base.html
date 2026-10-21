@@ -33,22 +33,56 @@
         </a>
 
         {% if user.is_authenticated %}
+            {% if user.base_role == 'RECRUITER' %}
 
-            <a href="{% url 'jobs.recommendations' %}">
-                Recommended
-            </a>
+                <a href="{% url 'jobs.recruiter_dashboard' %}">
+                    Dashboard
+                </a>
 
-            <a href="{% url 'cart.index' %}">
-                Saved
-            </a>
+                <a href="{% url 'jobs.recruiter_jobs' %}">
+                    Manage Jobs
+                </a>
 
-            <a href="{% url 'jobs.applications' %}">
-                Applications
-            </a>
+                <a href="{% url 'jobs.create_job' %}">
+                    Post a Job
+                </a>
 
-            <a href="{% url 'profiles:dashboard' %}">
-                Profile
-            </a>
+                <a href="{% url 'applications:inbox' %}">
+                    Messages
+                </a>
+                <a href="{% url 'jobs.saved_searches' %}">
+                    Saved Searches
+                </a>
+            
+            {% elif user.base_role == 'SEEKER' %}
+
+                <a href="{% url 'jobs.recommendations' %}">
+                    Recommended
+                </a>
+
+                <a href="{% url 'cart.index' %}">
+                    Saved
+                </a>
+
+                <a href="{% url 'jobs.applications' %}">
+                    Applications
+                </a>
+
+                <a href="{% url 'applications:inbox' %}">
+                    Messages
+                </a>
+
+                <a href="{% url 'profiles:dashboard' %}">
+                    Profile
+                </a>
+
+            {% elif user.base_role == 'ADMIN' %}
+
+                <a href="{% url 'administration:dashboard' %}">
+                    Dashboard
+                </a>
+
+            {% endif %}
 
             <a href="{% url 'accounts.logout' %}">
                 Log out

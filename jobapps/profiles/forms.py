@@ -6,7 +6,12 @@ from .models import JobSeekerProfile, WorkExperience, Education, UserAddress, Pr
 class JobSeekerProfileForm(forms.ModelForm):
     class Meta:
         model = JobSeekerProfile
-        fields = ['given_name', 'middle_name', 'last_name', 'personal_email', 'phone_number', 'headline', 'skills']
+        fields = ['given_name', 'middle_name', 'last_name', 'personal_email', 'phone_number', 'headline', 'skills', 'projects']
+        widgets = {
+                'projects' : forms.Textarea(attrs={'rows': 4,
+                'placeholder': 'Describe your projects, technologies, and experience'
+            })
+        }
 
 class AddressForm(forms.ModelForm):
     class Meta:

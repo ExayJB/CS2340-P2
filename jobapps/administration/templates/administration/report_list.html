@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Reports</h2>
+
+    {% if reports %}
+
+        {% for report in reports %}
+
+            <div class="card mb-3">
+                <div class="card-body">
+
+                    <h5>{{ report.reason }}</h5>
+
+                    <p>
+                        <strong>Reported by:</strong>
+                        {{ report.reporter.username }}
+                    </p>
+
+                    {% if report.target_user %}
+                        <p>
+                            <strong>Reported User:</strong>
+                            {{ report.target_user.username }}
+                        </p>
+                    {% endif %}
+
+                    {% if report.target_job %}
+                        <p>
+                            <strong>Reported Job:</strong>
+                            {{ report.target_job.title }}
+                        </p>
+                    {% endif %}
+
+                    <p>
+                        <strong>Details:</strong>
+                        {{ report.details }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        {{ report.get_status_display }}
+                    </p>
+
+                    <p>
+                        <strong>Submitted:</strong>
+                        {{ report.time_created }}
+                    </p>
+
+                    <form
+                        method="POST"
+                        action="{% url 'administration:update_report_status' report.id %}"
+                    >
+                        {% csrf_token %}
+
+                        <select name="status">
+                            <option value="OPEN">Open</option>
+                            <option value="REVIEWED">Reviewed</option>
+                            <option value="RESOLVED">Resolved</option>
+                        </select>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Update Status
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No reports have been submitted.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

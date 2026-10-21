@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from profiles.models import JobSeekerProfile
 from jobs.models import JobPosting
 
@@ -53,3 +54,25 @@ class Application(models.Model):
 
     def __str__(self):
         return f"Application by {self.profile} for {self.job}"
+from django.conf import settings
+
+
+class RecruiterMessage(models.Model):
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sent_recruiter_messages'
+    )
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='received_recruiter_messages'
+    )
+
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    time_sent = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username} to {self.recipient.username}"

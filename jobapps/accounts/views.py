@@ -25,7 +25,10 @@ def login(request):
             auth_login(request, user)
             if user.base_role == 'ADMIN':
                 return redirect('administration:dashboard')
-            return redirect('profiles:dashboard')
+            elif user.base_role == 'RECRUITER':
+                return redirect('jobs.recruiter_dashboard')
+            else:
+                return redirect('profiles:dashboard')
         
 
 def signup(request):

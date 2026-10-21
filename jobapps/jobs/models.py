@@ -62,5 +62,44 @@ class JobPosting(models.Model):
     def required_skills_list(self):
         return [skill.strip() for skill in self.required_skills.split(',') if skill.strip()]
 
+class SavedCandidateSearch(models.Model):
+    # Recruiter who saved this search
+    recruiter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='saved_candidate_searches'
+    )
+
+    # Saved search filters
+    skills = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    location = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    projects = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    # Candidates who already matched this search
+    seen_candidates = models.ManyToManyField(
+        JobSeekerProfile,
+        blank=True,
+        related_name='seen_in_saved_searches'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"Saved search by {self.recruiter.username}"
     def __str__(self):
         return self.title
+    
+    

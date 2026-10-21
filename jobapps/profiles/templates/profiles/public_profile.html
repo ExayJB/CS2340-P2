@@ -65,6 +65,12 @@
 
         <h3>Profile Information</h3>
 
+        {% if template_data.fields.projects %}
+<div class="profile-section">
+    <h3>Projects</h3>
+    <p>{{ template_data.fields.projects|linebreaksbr }}</p>
+</div>
+{% endif %}
 
         {% for exp in template_data.fields.experiences %}
 

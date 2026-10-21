@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Candidates | JobApps{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h1>Find Candidates</h1>
+
+    <p class="muted">
+        Search for talented candidates by skills, location, and projects.
+    </p>
+</div>
+
+
+<section class="card">
+
+    <h2>Candidate Search</h2>
+
+    <form method="GET">
+
+        <div class="form-group">
+            <label for="skills">Skills</label>
+
+            <input
+                type="text"
+                id="skills"
+                name="skills"
+                value="{{ skills }}"
+                placeholder="e.g. Python, Java, SQL"
+                class="form-control"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location</label>
+
+            <input
+                type="text"
+                id="location"
+                name="location"
+                value="{{ location }}"
+                placeholder="e.g. Atlanta"
+                class="form-control"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="projects">Projects</label>
+
+            <input
+                type="text"
+                id="projects"
+                name="projects"
+                value="{{ projects }}"
+                placeholder="e.g. Django"
+                class="form-control"
+            >
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Search Candidates
+            </button>
+
+            <a
+                href="{% url 'jobs.search_candidates' %}"
+                class="btn btn-secondary"
+            >
+                Clear Filters
+            </a>
+
+        </div>
+
+    </form>
+
+
+    {% if skills or location or projects %}
+
+        <form
+            method="POST"
+            action="{% url 'jobs.save_candidate_search' %}"
+        >
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="skills"
+                value="{{ skills }}"
+            >
+
+            <input
+                type="hidden"
+                name="location"
+                value="{{ location }}"
+            >
+
+            <input
+                type="hidden"
+                name="projects"
+                value="{{ projects }}"
+            >
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Save Search
+            </button>
+
+        </form>
+
+    {% endif %}
+
+</section>
+
+
+<div class="page-heading">
+
+    {% if viewing_saved_search %}
+
+        <h2>Saved Search Matches</h2>
+
+    {% else %}
+
+        <h2>Candidate Results</h2>
+
+    {% endif %}
+
+    <p class="muted">
+        {{ candidates|length }} candidates found
+    </p>
+
+</div>
+
+
+<div class="grid">
+
+    {% for candidate in candidates %}
+
+        <article class="card">
+
+            {% if candidate.is_new %}
+                <p>
+                    <strong>New Match</strong>
+                </p>
+            {% endif %}
+
+            <h3>
+                {{ candidate.name }}
+            </h3>
+
+            <p class="muted">
+                {{ candidate.headline }}
+            </p>
+
+            <p>
+                <strong>Skills:</strong>
+                {{ candidate.skills|join:", " }}
+            </p>
+
+            <p>
+                <strong>Projects:</strong>
+                {{ candidate.projects|default:"Not provided" }}
+            </p>
+
+            {% if candidate.location %}
+
+                <p>
+                    <strong>Location:</strong>
+                    {{ candidate.location.lines|join:", " }}
+                </p>
+
+            {% endif %}
+
+
+            <a
+                class="btn btn-primary"
+                href="{% url 'profiles:public' username=candidate.username %}"
+            >
+                View Profile
+            </a>
+
+
+            <a
+                href="{% url 'applications:send_message' candidate.user_id %}"
+                class="btn btn-primary"
+            >
+                Message Candidate
+            </a>
+
+        </article>
+
+    {% empty %}
+
+        <div class="card">
+
+            <h3>No candidates found</h3>
+
+            <p>
+                Try adjusting your search filters.
+            </p>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
