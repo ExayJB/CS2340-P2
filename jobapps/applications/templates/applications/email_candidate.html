@@ -5,21 +5,13 @@
 {% block content %}
 <div class="page-heading">
     <h1>Email Candidate</h1>
-    <p class="muted">
-        Write an email to {{ recipient.username }} through JobGO.
-    </p>
 </div>
 
 <article class="card">
     {% if can_email_candidate %}
-    <p>
-        Use the candidate's shared email address. You can enter it here if it
-        is not already in their profile.
-    </p>
-
     {% if email_is_console %}
     <p class="muted">
-        P.S. This demo won't actually send the email.
+        P.S. This demo doesn't actually send emails.
     </p>
     {% endif %}
 
