@@ -7,69 +7,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}JobApps{% endblock %}</title>
+    <title>{% block title %}JOBGO · Career Adventure{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
+    <div class="bg-sprites" aria-hidden="true">
+    <span class="bg-sprite sprite-1">⚡</span>
+    <span class="bg-sprite sprite-2">👾</span>
+    <span class="bg-sprite sprite-3">✨</span>
+    <span class="bg-sprite sprite-4">🌟</span>
+    <span class="bg-sprite sprite-5">🌀</span>
+    <span class="bg-sprite sprite-6">🐾</span>
+    <span class="bg-sprite sprite-7">⚙️</span>
+    <span class="bg-sprite sprite-8">💥</span>
+    <span class="bg-sprite sprite-9">🎮</span>
+    <span class="bg-sprite sprite-10">⭐</span>
+    <span class="bg-sprite sprite-11">🟡</span>
+    <span class="bg-sprite sprite-12">🟣</span>
+    <span class="bg-sprite sprite-13">🔵</span>
+    <span class="bg-sprite sprite-14">🟢</span>
+    <span class="bg-sprite sprite-15">🧿</span>
+    <span class="bg-sprite sprite-16">☁️</span>
+</div>
+    <div class="world-decor world-decor--one" aria-hidden="true"></div>
+    <div class="world-decor world-decor--two" aria-hidden="true"></div>
+    <div class="jobgo-sprites" aria-hidden="true">
+        <span class="sky-sprite sprite-cloud cloud-one"></span>
+        <span class="sky-sprite sprite-cloud cloud-two"></span>
+        <span class="sky-sprite sprite-star star-one">✦</span>
+        <span class="sky-sprite sprite-star star-two">✦</span>
+        <span class="sky-sprite sprite-orb orb-one">◆</span>
+    </div>
 
     <header class="site-header">
-        <a class="brand" href="{% url 'jobs.index' %}">
-            JobApps
+        <a class="brand" href="{% url 'jobs.index' %}" aria-label="JobGO home">
+            <span class="brand-icon" aria-hidden="true">✦</span>
+            <span>JOB<span class="brand-accent">GO!</span></span>
+            <span class="brand-subtitle">career adventure</span>
         </a>
 
-        <nav class="nav-links">
+        {% if user.is_authenticated and user.base_role == 'SEEKER' and user.job_seeker_profile %}
+            <span class="hud-player" aria-label="Your character">
+                {% with avatar=user.job_seeker_profile.avatar_choice %}
+                <img src="/static/jobgo/avatars/{{ avatar }}.svg" alt="" width="32" height="32">
+                {% endwith %}
+            </span>
+        {% endif %}
+        <nav class="nav-links" aria-label="Primary navigation">
 
             <a href="{% url 'jobs.index' %}">
-                Jobs
+                Explore
             </a>
 
             {% if user.is_authenticated %}
             {% if user.base_role == 'RECRUITER' %}
 
             <a href="{% url 'jobs.recruiter_dashboard' %}">
-                Dashboard
+                HQ
             </a>
 
             <a href="{% url 'jobs.recruiter_jobs' %}">
-                Manage Jobs
+                My Quests
             </a>
 
             <a href="{% url 'jobs.create_job' %}">
-                Post a Job
+                New Quest
             </a>
 
             <a href="{% url 'applications:inbox' %}">
                 Messages
             </a>
             <a href="{% url 'jobs.saved_searches' %}">
-                Saved Searches
+                Search Radar
             </a>
             <a href="{% url 'jobs.candidate_recommendations' %}">
-                Recommended Candidates
+                Talent Radar
             </a>
             <a href="{% url 'jobs.pipeline' %}">
-                Applicant Pipeline
+                Quest Pipeline
             </a>
 
             {% elif user.base_role == 'SEEKER' %}
 
             <a href="{% url 'jobs.recommendations' %}">
-                Recommended
+                For You
             </a>
 
             <a href="{% url 'cart.index' %}">
-                Saved
+                Collection
             </a>
 
             <a href="{% url 'jobs.applications' %}">
-                Applications
+                My Journey
             </a>
 
             <a href="{% url 'applications:inbox' %}">
@@ -77,29 +113,29 @@
             </a>
 
             <a href="{% url 'profiles:dashboard' %}">
-                Profile
+                Trainer Card
             </a>
 
             {% elif user.base_role == 'ADMIN' %}
 
             <a href="{% url 'administration:dashboard' %}">
-                Dashboard
+                HQ
             </a>
 
             {% endif %}
 
             <a href="{% url 'accounts.logout' %}">
-                Log out
+                Exit Game
             </a>
 
             {% else %}
 
             <a href="{% url 'accounts.login' %}">
-                Log in
+                Enter Game
             </a>
 
             <a class="btn btn-primary btn-small" href="{% url 'accounts.signup' %}">
-                Sign up
+                Start Playing
             </a>
 
             {% endif %}
@@ -108,7 +144,16 @@
     </header>
 
 
+    <div class="game-ticker" aria-hidden="true">
+        <span>✦ NEW ADVENTURES AWAIT</span><span>◆ DISCOVER OPPORTUNITIES</span><span>★ LEVEL UP YOUR CAREER</span>
+    </div>
+
     <main class="page-shell">
+        <div class="level-banner" aria-label="Game mode: career adventure">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span>WORLD 01 / CAREER ADVENTURE</span>
+            <span class="level-banner-right">READY PLAYER ONE ★</span>
+        </div>
 
         {% if messages %}
         <div class="messages">
@@ -129,7 +174,7 @@
 
 
     <footer class="site-footer">
-        CS 2340 Job Application Platform
+        <span class="footer-star">✦</span> JOBGO! &nbsp;·&nbsp; Your next adventure starts here &nbsp;·&nbsp; CS 2340
     </footer>
 
 </body>

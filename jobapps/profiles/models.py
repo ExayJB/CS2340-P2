@@ -13,6 +13,14 @@ class LocationVisibility(models.TextChoices):
     EXACT = 'EXACT', 'Full address (only recruiters I applied to)'
 
 class JobSeekerProfile(models.Model):
+    AVATAR_CHOICES = [
+        ('explorer', 'Explorer'),
+        ('inventor', 'Inventor'),
+        ('scout', 'Scout'),
+    ]
+    avatar_choice = models.CharField(
+        max_length=16, choices=AVATAR_CHOICES, default='explorer'
+    )
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='job_seeker_profile')
     given_name = models.CharField(max_length=255, default='')
     middle_name = models.CharField(max_length=255, blank=True, default='')
@@ -78,6 +86,7 @@ class JobSeekerProfile(models.Model):
         data = {
             'username': self.user.username,
             'headline': self.headline,
+            'avatar_choice': self.avatar_choice,
             'skills': self.skills_list,
             'projects': self.projects,
         }

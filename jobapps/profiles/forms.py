@@ -6,12 +6,39 @@ from .models import JobSeekerProfile, WorkExperience, Education, UserAddress, Pr
 class JobSeekerProfileForm(forms.ModelForm):
     class Meta:
         model = JobSeekerProfile
-        fields = ['given_name', 'middle_name', 'last_name', 'personal_email', 'phone_number', 'headline', 'skills', 'projects']
+
+        fields = [
+            'given_name',
+            'middle_name',
+            'last_name',
+            'personal_email',
+            'phone_number',
+            'headline',
+            'skills',
+            'projects',
+            'avatar_choice',
+        ]
+
         widgets = {
-                'projects' : forms.Textarea(attrs={'rows': 4,
-                'placeholder': 'Describe your projects, technologies, and experience'
-            })
+            'projects': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Describe your projects, technologies, and experience',
+            }),
+            'avatar_choice': forms.RadioSelect(),
         }
+
+        labels = {
+            'avatar_choice': 'Choose Your Trainer',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['avatar_choice'].choices = [
+            ('explorer', 'Ace Trainer'),
+            ('inventor', 'Tech Mage'),
+            ('scout', 'Shadow Rogue'),
+        ]
 
 class AddressForm(forms.ModelForm):
     class Meta:

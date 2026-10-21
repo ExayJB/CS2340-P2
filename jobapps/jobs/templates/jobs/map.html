@@ -22,10 +22,10 @@ Jobs Near Me | JobApps
 
 {% block content %}
 <div class="page-heading">
-    <h1>Jobs near me</h1>
+    <h1>Adventure Map <small>· Jobs near me</small></h1>
 
     <p class="muted">
-        Select a marker to view the job posting.
+        Discover nearby opportunities. Select a quest marker to view the original job posting.
     </p>
 
     <button class="btn btn-secondary" id="locate-me" type="button">
@@ -115,11 +115,23 @@ Jobs Near Me | JobApps
         return popup;
     }
 
+    function questIcon(workMode) {
+        const mode = (workMode || 'ONSITE').toUpperCase();
+        const icon = mode === 'HYBRID' ? '✦' : mode === 'REMOTE' ? '⌘' : '◆';
+        return L.divIcon({
+            className: 'quest-pin-wrap',
+            html: `<span class="quest-pin quest-pin--${mode.toLowerCase()}" aria-label="${mode} job">${icon}</span>`,
+            iconSize: [40, 50],
+            iconAnchor: [20, 44],
+            popupAnchor: [0, -39]
+        });
+    }
+
     for (const job of jobs) {
         const marker = L.marker([
             job.latitude,
             job.longitude
-        ]).addTo(map);
+        ], { icon: questIcon(job.work_mode) }).addTo(map);
 
         marker.bindPopup(makePopup(job));
 
