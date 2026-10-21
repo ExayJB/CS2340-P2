@@ -52,7 +52,10 @@
                 Saved Searches
             </a>
             <a href="{% url 'jobs.candidate_recommendations' %}">
-                Recommended candidates
+                Recommended Candidates
+            </a>
+            <a href="{% url 'jobs.pipeline' %}">
+                Applicant Pipeline
             </a>
 
             {% elif user.base_role == 'SEEKER' %}

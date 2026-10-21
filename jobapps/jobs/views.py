@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from .forms import JobPostingForm
+from django.utils.http import url_has_allowed_host_and_scheme
+STATUS_ORDER = ['APPLIED', 'REVIEW', 'INTERVIEW', 'OFFER', 'CLOSED']
 
 def index(request):
     jobs = JobPosting.objects.filter(is_active=True)
@@ -513,3 +515,69 @@ def candidate_recommendations(request, id=None):
         'results': results,
         'single_job': postings.first() if id is not None else None,
     })
+
+@login_required
+def pipeline(request, id=None):
+    require_recruiter(request.user)
+
+    applications = Application.objects.filter(
+        job__recruiter=request.user
+    ).select_related('job', 'profile', 'profile__user', 'profile__personal_address')
+
+    job = None
+    if id is not None:
+        job = get_object_or_404(JobPosting, id=id, recruiter=request.user)
+        applications = applications.filter(job=job)
+
+    labels = dict(Application.STATUS_CHOICES)
+    columns = []
+    for status in STATUS_ORDER:
+        cards = []
+        for application in applications:
+            if application.status != status:
+                continue
+            visible = application.profile.visible_to(request.user)
+            cards.append({
+                'application': application,
+                'name': visible['name'],
+                'headline': visible['headline'],
+                'options': [
+                    {'value': value, 'label': label, 'selected': value == application.status}
+                    for value, label in Application.STATUS_CHOICES
+                ],
+            })
+        columns.append({
+            'status': status,
+            'label': labels[status],
+            'cards': cards,
+        })
+    return render(request, 'jobs/pipeline.html', {
+        'columns': columns,
+        'job': job,
+        'statuses': Application.STATUS_CHOICES,
+    })
+
+@login_required
+def update_application_status(request, id):
+    require_recruiter(request.user)
+
+    application = get_object_or_404(
+        Application, id=id, job__recruiter=request.user
+    )
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status', '')
+        if new_status in {value for value, _ in Application.STATUS_CHOICES}:
+            application.status = new_status
+            application.save(update_fields=['status'])
+            messages.success(request, 
+                         f"Moved {application.profile.user.username} to " 
+                         f"{application.get_status_display()}."
+            )
+        else:
+            messages.error(request, "Unknown status.")
+
+    next_url = request.POST.get('next', '')
+    if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
+    return redirect('jobs.pipeline')

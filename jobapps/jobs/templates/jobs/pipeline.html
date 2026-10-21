@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Applicant Pipeline | JobApps{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Applicant pipeline{% if job %} — {{ job.title }}{% endif %}</h1>
+    <p class="muted">
+        Changing a stage here updates what the applicant sees on their tracking page.
+    </p>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+{% csrf_token %}
+
+<div class="pipeline">
+    {% for column in columns %}
+    <section class="pipeline-column" data-status="{{ column.status }}">
+        <header class="pipeline-column-head">
+            <h3>{{ column.label }}</h3>
+            <span class="pipeline-count">{{ column.cards|length }}</span>
+        </header>
+
+        <div class="pipeline-dropzone">
+            {% for card in column.cards %}
+            <article class="card pipeline-card" draggable="true" data-id="{{ card.application.id }}"
+                data-url="{% url 'jobs.update_application_status' id=card.application.id %}">
+                <h4>
+                    <a href="{% url 'applications:review' id=card.application.id %}">
+                        {{ card.name }}
+                    </a>
+                </h4>
+                {% if card.application.note %}
+                <p>“{{ card.application.note|truncatewords:20 }}”</p>
+                {% endif %}
+
+                <form method="POST" action="{% url 'jobs.update_application_status' id=card.application.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <select name="status">
+                        {% for option in card.options %}
+                        <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>
+                            {{ option.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-secondary btn-sm">Move</button>
+                </form>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
+
+<style>
+    .pipeline {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+
+    .pipeline-column {
+        flex: 1 1 0;
+        min-width: 0;
+        border: 1px solid rgba(0, 0, 0, .15);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, .03);
+        padding: .75rem;
+    }
+
+    .pipeline-column-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: .75rem;
+        padding-bottom: .5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+    }
+
+    .pipeline-column-head h3 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .pipeline-count {
+        font-size: .85rem;
+        padding: .1rem .5rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, .1);
+    }
+
+    .pipeline-dropzone {
+        min-height: 80px;
+    }
+
+    .pipeline-card {
+        margin-bottom: .75rem;
+        cursor: grab;
+        overflow-wrap: break-word;
+    }
+
+    .pipeline-card.dragging {
+        opacity: .45;
+    }
+
+    .pipeline-column.drag-over {
+        background: rgba(0, 0, 0, .08);
+    }
+</style>
+
+<script>
+    (function () {
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        let dragged = null;
+
+        document.querySelectorAll('.pipeline-card').forEach(card => {
+            card.addEventListener('dragstart', () => {
+                dragged = card;
+                card.classList.add('dragging');
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                dragged = null;
+            });
+        });
+
+        document.querySelectorAll('.pipeline-column').forEach(column => {
+            column.addEventListener('dragover', e => {
+                e.preventDefault();
+                column.classList.add('drag-over');
+            });
+            column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
+
+            column.addEventListener('drop', e => {
+                e.preventDefault();
+                column.classList.remove('drag-over');
+                if (!dragged) return;
+
+                const from = dragged.closest('.pipeline-column');
+                if (from === column) return;
+
+                column.querySelector('.pipeline-dropzone').appendChild(dragged);
+                recount(from);
+                recount(column);
+                dragged.querySelector('select[name="status"]').value = column.dataset.status;
+
+                fetch(dragged.dataset.url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrf,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'status=' + encodeURIComponent(column.dataset.status),
+                }).then(response => {
+                    if (!response.ok) window.location.reload();
+                }).catch(() => window.location.reload());
+            });
+        });
+
+        function recount(column) {
+            column.querySelector('.pipeline-count').textContent =
+                column.querySelectorAll('.pipeline-card').length;
+        }
+    })();
+</script>
+{% endblock %}
