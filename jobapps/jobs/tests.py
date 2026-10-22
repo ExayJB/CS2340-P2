@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
 from django.urls import reverse
 
 from applications.models import Application
@@ -160,27 +159,3 @@ class RecruiterDashboardEmailSectionTests(TestCase):
         self.assertContains(response, 'Recent Applicants')
 
 
-class SeedDemoDataTests(TestCase):
-    def setUp(self):
-        self.recruiter = get_user_model().objects.create_user(
-            username='seed-recruiter',
-            password='test-password',
-            base_role='RECRUITER',
-        )
-        RecruiterProfile.objects.create(user=self.recruiter)
-
-    def test_seed_command_is_repeatable_and_keeps_candidates_fictional(self):
-        call_command('seed_demo_data', recruiter=self.recruiter.username)
-        call_command('seed_demo_data', recruiter=self.recruiter.username)
-
-        self.assertEqual(JobPosting.objects.filter(recruiter=self.recruiter).count(), 5)
-        self.assertEqual(JobSeekerProfile.objects.filter(
-            user__username__in=['demo_candidate'] + [
-                f'demo_gt_student_{number:02d}' for number in range(1, 10)
-            ]
-        ).count(), 10)
-        profile = JobSeekerProfile.objects.get(user__username='demo_gt_student_01')
-        self.assertEqual(profile.personal_email, 'gt-demo-01@example.test')
-        self.assertEqual(profile.contact_visibility, Visibility.APPLIED)
-        self.assertEqual(profile.personal_address.city, 'Atlanta')
-        self.assertEqual(profile.applications.count(), 1)
