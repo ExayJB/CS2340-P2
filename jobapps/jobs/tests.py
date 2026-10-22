@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from applications.models import Application
-from jobs.models import JobPosting
+from jobs.models import JobPosting, SavedCandidateSearch
 from profiles.models import (
     JobSeekerProfile,
     LocationVisibility,
@@ -189,3 +189,21 @@ class RecruiterCandidateSearchMessageButtonTests(TestCase):
         ))
 
 
+class SavedCandidateSearchTests(TestCase):
+    def test_saved_search_string_representation(self):
+        recruiter = get_user_model().objects.create_user(
+            username='test_recruiter',
+            password='test-password',
+            base_role='RECRUITER',
+        )
+
+        saved_search = SavedCandidateSearch.objects.create(
+            recruiter=recruiter,
+            skills='Python',
+            location='Atlanta',
+        )
+
+        self.assertEqual(
+            str(saved_search),
+            'Saved search by test_recruiter'
+        )

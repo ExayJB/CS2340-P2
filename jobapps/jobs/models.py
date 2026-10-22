@@ -109,7 +109,6 @@ class SavedCandidateSearch(models.Model):
 
     def __str__(self):
         return f"Saved search by {self.recruiter.username}"
-    def __str__(self):
-        return self.title
+
     
     
