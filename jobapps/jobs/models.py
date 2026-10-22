@@ -8,6 +8,16 @@ class JobPosting(models.Model):
         REMOTE = 'REMOTE', 'Remote'
         ONSITE = 'ONSITE', 'On-site'
         HYBRID = 'HYBRID', 'Hybrid'
+    class VisaSponsorship(models.TextChoices):
+        YES = 'YES', 'Sponsorship available'
+        NO = 'NO', 'No sponsorship'
+        UNKNOWN = 'UNKNOWN', 'Not specified'
+
+    visa_sponsorship = models.CharField(
+        max_length=10,
+        choices=VisaSponsorship.choices,
+        default=VisaSponsorship.UNKNOWN
+    )
 
     recruiter = models.ForeignKey(
         settings.AUTH_USER_MODEL,

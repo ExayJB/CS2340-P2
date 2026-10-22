@@ -112,7 +112,7 @@ class Command(BaseCommand):
                           'longitude': Decimal(lng),
                           'description': f'Fictional demo opening for {title}. Collaborate with a team to design, build, and test software. Experience with {skills} is helpful.',
                           'required_skills': skills, 'salary_min': Decimal(low),
-                          'salary_max': Decimal(high), 'work_mode': mode,
+                          'salary_max': Decimal(high), 'work_mode': mode, 'visa_sponsorship': 'YES' if i % 2 == 0 else 'NO',
                           'is_active': i != 11})
             jobs.append(job)
 

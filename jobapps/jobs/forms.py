@@ -13,6 +13,7 @@ class JobPostingForm(forms.ModelForm):
             'salary_min',
             'salary_max',
             'work_mode',
+            'visa_sponsorship',
             'is_active',
             'latitude',
             'longitude',

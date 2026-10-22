@@ -21,6 +21,7 @@ def index(request):
     min_salary = request.GET.get('min_salary', '').strip()
     max_salary = request.GET.get('max_salary', '').strip()
     work_mode = request.GET.get('work_mode', '').strip()
+    visa_sponsorship = request.GET.get('visa_sponsorship', '').strip()
 
     if title:
         jobs = jobs.filter(title__icontains=title)
@@ -40,6 +41,9 @@ def index(request):
     if work_mode:
         jobs = jobs.filter(work_mode=work_mode)
 
+    if visa_sponsorship in ['YES', 'NO', 'UNKNOWN']:
+        jobs = jobs.filter(visa_sponsorship=visa_sponsorship)
+
     template_data = {
         'jobs': jobs,
         'filters': {
@@ -49,6 +53,7 @@ def index(request):
             'min_salary': min_salary,
             'max_salary': max_salary,
             'work_mode': work_mode,
+            'visa_sponsorship': visa_sponsorship,
         }
     }
 

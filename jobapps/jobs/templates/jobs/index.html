@@ -132,6 +132,45 @@ Jobs | JobApps
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="visa_sponsorship">
+                    Visa Sponsorship
+                </label>
+
+                <select
+                    id="visa_sponsorship"
+                    name="visa_sponsorship"
+                >
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="YES"
+                        {% if template_data.filters.visa_sponsorship == 'YES' %}
+                            selected
+                        {% endif %}
+                    >
+                        Sponsorship Available
+                    </option>
+
+                    <option value="NO"
+                        {% if template_data.filters.visa_sponsorship == 'NO' %}
+                            selected
+                        {% endif %}
+                    >
+                        No Sponsorship
+                    </option>
+
+                    <option value="UNKNOWN"
+                        {% if template_data.filters.visa_sponsorship == 'UNKNOWN' %}
+                            selected
+                        {% endif %}
+                    >
+                        Not Specified
+                    </option>
+                </select>
+            </div>
+
         </div>
 
 
@@ -188,6 +227,9 @@ Jobs | JobApps
 
                 <span>
                     {{ job.get_work_mode_display }}
+                </span>
+                <span>
+                    {{ job.get_visa_sponsorship_display }}
                 </span>
 
                 {% if job.salary_min or job.salary_max %}
