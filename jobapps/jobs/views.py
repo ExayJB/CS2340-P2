@@ -294,6 +294,23 @@ def recruiter_dashboard(request):
         'profile__user'
     ).order_by('-date')
 
+    # Keep external email separate from platform messages and only list
+    # applicants whose contact settings expose their email to this recruiter.
+    eligible_candidates = JobSeekerProfile.objects.filter(
+        Q(is_discoverable=True) | Q(applications__job__recruiter=request.user),
+        user__is_active=True,
+    ).select_related('user').distinct().order_by('user__username')
+    email_candidates = []
+    for profile in eligible_candidates:
+        visible_profile = profile.visible_to(request.user)
+        if 'personal_email' not in visible_profile or not visible_profile['personal_email']:
+            continue
+        email_candidates.append({
+            'user': profile.user,
+            'name': visible_profile['name'],
+            'email': visible_profile['personal_email'],
+        })
+
     context = {
         'total_jobs': my_jobs.count(),
         'active_jobs': my_jobs.filter(is_active=True).count(),
@@ -301,6 +318,7 @@ def recruiter_dashboard(request):
         'recent_jobs': my_jobs.order_by('-id')[:5],
         # Show recruiter their applicants
         'applications': applications,
+        'email_candidates': email_candidates,
         'new_candidate_matches': new_candidate_matches,
     }
 

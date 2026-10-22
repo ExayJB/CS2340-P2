@@ -118,7 +118,31 @@
 </div>
 <hr class="my-4">
 
+<h2>Email Candidates</h2>
+<p class="muted">Candidates appear here only when their contact settings let you see their email. Platform messages remain available separately.</p>
+
+{% if email_candidates %}
+<div class="grid">
+    {% for candidate in email_candidates %}
+    <div class="card">
+        <h3>{{ candidate.name|default:candidate.user.username }}</h3>
+        <p>{{ candidate.email }}</p>
+        <a class="btn btn-primary" href="{% url 'applications:email_candidate' candidate.user.id %}">
+            Write Email
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <p>No applicants have shared an email address with you yet. You can still contact candidates using platform messages.</p>
+</div>
+{% endif %}
+
+<hr class="my-4">
+
 <h2>Recent Applicants</h2>
+<p class="muted">Sample applicants are fictional demo profiles.</p>
 
 {% if applications %}
 
@@ -128,7 +152,11 @@
     <div class="card-body">
 
         <h5>
-            {{ application.profile.user.username }}
+            {% if application.profile.given_name or application.profile.last_name %}
+                {{ application.profile.given_name }} {{ application.profile.last_name }}
+            {% else %}
+                {{ application.profile.user.username }}
+            {% endif %}
         </h5>
 
         <p>
@@ -147,10 +175,6 @@
             {{ application.note }}
         </p>
         {% endif %}
-
-        <a href="{% url 'applications:email_candidate' application.profile.user.id %}" class="btn btn-primary">
-            Email Candidate
-        </a>
 
     </div>
 </div>
