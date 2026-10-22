@@ -159,3 +159,33 @@ class RecruiterDashboardEmailSectionTests(TestCase):
         self.assertContains(response, 'Recent Applicants')
 
 
+class RecruiterCandidateSearchMessageButtonTests(TestCase):
+    def test_candidate_search_has_message_button_next_to_profile(self):
+        user_model = get_user_model()
+        recruiter = user_model.objects.create_user(
+            username='search-recruiter',
+            password='test-password',
+            base_role='RECRUITER',
+        )
+        RecruiterProfile.objects.create(user=recruiter)
+        candidate = user_model.objects.create_user(
+            username='jamie-lee',
+            password='test-password',
+        )
+        JobSeekerProfile.objects.create(
+            user=candidate,
+            headline='Software Engineer',
+            skills='Python',
+        )
+        self.client.force_login(recruiter)
+
+        response = self.client.get(reverse('jobs.search_candidates'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'View Profile')
+        self.assertContains(response, 'Send Message')
+        self.assertContains(response, reverse(
+            'applications:send_message', kwargs={'user_id': candidate.id}
+        ))
+
+
