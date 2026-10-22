@@ -112,7 +112,7 @@ def email_candidate(request, user_id):
                 'This candidate has not shared their personal email with you.',
             )
         elif form.is_valid():
-            sender_name = request.user.get_full_name() or request.user.username
+            sender_name = request.user.username
             email_body = (
                 f"{form.cleaned_data['message']}\n\n"
                 f"— {sender_name}, contacting you through JobGO"
