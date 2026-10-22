@@ -22,17 +22,26 @@ User = get_user_model()
 
 @login_required
 def apply(request, id):
-    job = get_object_or_404(JobPosting, id=id)
-    profile = get_object_or_404(JobSeekerProfile, user=request.user)
+    job = get_object_or_404(
+        JobPosting,
+        id=id,
+        is_active=True
+    )
+
+    profile = get_object_or_404(
+        JobSeekerProfile,
+        user=request.user
+    )
 
     if request.method == 'POST':
         Application.objects.get_or_create(
-            job=job, 
+            job=job,
             profile=profile,
-            defaults={'note': request.POST.get('note', '')
+            defaults={
+                'note': request.POST.get('note', '')
             }
         )
-    
+
     return redirect('/jobs/')
 
 @login_required

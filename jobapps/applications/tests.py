@@ -129,3 +129,73 @@ class EmailCandidateTests(TestCase):
         self.assertEqual(mail.outbox, [])
 
 # Create your tests here.
+
+
+from .models import Application
+
+
+class ApplyToInactiveJobTests(TestCase):
+    def setUp(self):
+        user_model = get_user_model()
+
+        self.user = user_model.objects.create_user(
+            username='test-seeker',
+            password='test-password',
+            base_role='SEEKER',
+        )
+
+        self.profile = JobSeekerProfile.objects.create(
+            user=self.user
+        )
+
+        self.active_job = JobPosting.objects.create(
+            title='Active Developer',
+            company='Test Company',
+            location='Atlanta',
+            description='Active job',
+            is_active=True,
+        )
+
+        self.inactive_job = JobPosting.objects.create(
+            title='Inactive Developer',
+            company='Test Company',
+            location='Atlanta',
+            description='Inactive job',
+            is_active=False,
+        )
+
+        self.client.force_login(self.user)
+
+    def test_can_apply_to_active_job(self):
+        response = self.client.post(
+            reverse(
+                'applications:apply',
+                kwargs={'id': self.active_job.id}
+            ),
+            {'note': 'I am interested'}
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            Application.objects.filter(
+                job=self.active_job,
+                profile=self.profile
+            ).exists()
+        )
+
+    def test_cannot_apply_to_inactive_job(self):
+        response = self.client.post(
+            reverse(
+                'applications:apply',
+                kwargs={'id': self.inactive_job.id}
+            ),
+            {'note': 'I am interested'}
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(
+            Application.objects.filter(
+                job=self.inactive_job,
+                profile=self.profile
+            ).exists()
+        )
